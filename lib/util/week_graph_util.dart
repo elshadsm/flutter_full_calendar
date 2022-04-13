@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import '../providers/date_provider.dart';
 import '../models/week_graph_color.dart';
@@ -80,6 +81,11 @@ class WeekGraphUtil {
           border: AppColors.red,
         );
     }
+  }
+
+  getHourText(Event event) {
+    final dateFormat = DateFormat.Hm();
+    return '${dateFormat.format(event.from)} - ${dateFormat.format(event.to)}';
   }
 
   double _calculateLeft(

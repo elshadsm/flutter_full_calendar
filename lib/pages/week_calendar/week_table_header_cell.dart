@@ -17,23 +17,24 @@ class WeekTableHeaderCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Expanded(
       child: Column(
         children: [
           Text(
             week,
-            style: Theme.of(context).textTheme.caption?.copyWith(
-                  color: AppColors.secondaryText,
-                  fontWeight: FontWeight.w500,
-                ),
+            style: textTheme.caption?.copyWith(
+              color: AppColors.secondaryText,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: AppSizes.spacing),
           TextButton(
             child: Text(
               day.toString(),
-              style: Theme.of(context).textTheme.headline5?.copyWith(
-                    color: isToday ? Colors.white : AppColors.blue,
-                  ),
+              style: textTheme.headline5?.copyWith(
+                color: isToday ? Colors.white : AppColors.blue,
+              ),
             ),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.all(AppSizes.spacingL),

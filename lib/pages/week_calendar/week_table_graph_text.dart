@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../util/week_graph_util.dart';
 import '../../models/event.dart';
 
 class WeekTableGraphText extends StatelessWidget {
@@ -15,25 +15,25 @@ class WeekTableGraphText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Align(
       alignment: Alignment.centerLeft,
       child: RichText(
         textAlign: TextAlign.left,
         text: TextSpan(
           text: '${event.title}\n',
-          style: Theme.of(context).textTheme.caption!.copyWith(
-                color: color,
-                fontWeight: FontWeight.w500,
-              ),
+          style: textTheme.caption!.copyWith(
+            color: color,
+            fontWeight: FontWeight.w500,
+          ),
           children: [
             TextSpan(
-              text: '${DateFormat.Hm().format(event.from)} - '
-                  '${DateFormat.Hm().format(event.to)}',
-              style: Theme.of(context).textTheme.overline!.copyWith(
-                    color: color,
-                    letterSpacing: 0.25,
-                    wordSpacing: 0.5,
-                  ),
+              text: WeekGraphUtil.instance.getHourText(event),
+              style: textTheme.overline!.copyWith(
+                color: color,
+                letterSpacing: 0.25,
+                wordSpacing: 0.5,
+              ),
             ),
           ],
         ),

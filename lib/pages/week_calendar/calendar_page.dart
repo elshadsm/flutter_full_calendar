@@ -38,8 +38,9 @@ class _CalendarPageState extends State<CalendarPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
+              const Divider(
                 height: AppSizes.spacingS,
+                thickness: AppSizes.spacingS,
                 color: AppColors.darkYellow,
               ),
               const CalendarNavigationBar(),

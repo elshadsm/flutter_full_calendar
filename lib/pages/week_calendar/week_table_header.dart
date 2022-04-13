@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_full_calendar/util/date_util.dart';
-import 'package:flutter_full_calendar/widgets/horizontal_table_separators.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../../widgets/horizontal_table_separators.dart';
 import '../../providers/date_provider.dart';
 import '../../resources/sizes.dart';
+import '../../util/date_util.dart';
 import 'week_table_header_cell.dart';
 
 class WeekTableHeader extends StatelessWidget {
