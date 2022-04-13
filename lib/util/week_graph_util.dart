@@ -11,6 +11,8 @@ import '../resources/sizes.dart';
 import '../util/date_util.dart';
 import '../models/event.dart';
 
+const rightPadding = AppSizes.spacingL;
+
 class WeekGraphUtil {
   WeekGraphUtil._privateConstructor();
 
@@ -109,7 +111,7 @@ class WeekGraphUtil {
   }
 
   double _calculateWidth(double cellWidth) {
-    return cellWidth / 2 - AppSizes.spacingS;
+    return (cellWidth - rightPadding) / 2;
   }
 
   double _calculateHeight(
@@ -129,7 +131,7 @@ class WeekGraphUtil {
     Event event,
     double cellWidth,
   ) {
-    final half = cellWidth / 2;
+    final half = (cellWidth - rightPadding) / 2;
     final margin = half / 5;
     switch (event.type) {
       case EventType.a:
@@ -139,11 +141,11 @@ class WeekGraphUtil {
       case EventType.c:
         return 2 * margin;
       case EventType.d:
-        return 3 * margin + AppSizes.spacingS;
+        return 3 * margin + AppSizes.spacing;
       case EventType.e:
-        return 4 * margin + AppSizes.spacingS;
+        return 4 * margin + AppSizes.spacing;
       case EventType.f:
-        return 5 * margin + AppSizes.spacingS;
+        return 5 * margin + AppSizes.spacing;
       default:
         return 0;
     }
