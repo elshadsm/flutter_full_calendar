@@ -6,11 +6,13 @@ import '../../resources/sizes.dart';
 class HorizontalTableSeparators extends StatelessWidget {
   final int cellCount;
   final double cellHeight;
+  final bool showBottomBorder;
 
   const HorizontalTableSeparators({
     Key? key,
     required this.cellCount,
     required this.cellHeight,
+    required this.showBottomBorder,
   }) : super(key: key);
 
   @override
@@ -20,9 +22,10 @@ class HorizontalTableSeparators extends StatelessWidget {
       color: AppColors.dividerBackground,
     );
     return Table(
-      border: const TableBorder(
+      border: TableBorder(
         left: borderSide,
         right: borderSide,
+        bottom: showBottomBorder ? borderSide : BorderSide.none,
         verticalInside: borderSide,
       ),
       columnWidths: _createTableColumnWidths(),

@@ -19,6 +19,16 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  late final ScrollController _scrollController;
+
+  var _scrolled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initScrollController();
+  }
+
   @override
   Widget build(BuildContext context) {
     Provider.of<DateProvider>(context);
@@ -50,9 +60,12 @@ class _CalendarPageState extends State<CalendarPage> {
                 thickness: AppSizes.dividerSize,
               ),
               const SizedBox(height: AppSizes.spacingL),
-              const WeekTableHeader(),
+              WeekTableHeader(
+                showBottomBorder: _scrolled,
+              ),
               Expanded(
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
@@ -69,5 +82,15 @@ class _CalendarPageState extends State<CalendarPage> {
         ),
       ),
     );
+  }
+
+  _initScrollController() {
+    _scrollController = ScrollController()
+      ..addListener(() {
+        final scrolled = _scrollController.offset > 0;
+        if (_scrolled != scrolled) {
+          setState(() => _scrolled = scrolled);
+        }
+      });
   }
 }

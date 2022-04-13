@@ -9,8 +9,11 @@ import '../../util/date_util.dart';
 import 'week_table_header_cell.dart';
 
 class WeekTableHeader extends StatelessWidget {
+  final bool showBottomBorder;
+
   const WeekTableHeader({
     Key? key,
+    required this.showBottomBorder,
   }) : super(key: key);
 
   @override
@@ -26,12 +29,13 @@ class WeekTableHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: _createCells(provider),
           ),
-          const Positioned.fill(
+          Positioned.fill(
             child: Align(
               alignment: Alignment.bottomCenter,
               child: HorizontalTableSeparators(
                 cellCount: DateTime.daysPerWeek,
                 cellHeight: AppSizes.weekTableHeaderSeparator,
+                showBottomBorder: showBottomBorder,
               ),
             ),
           ),
