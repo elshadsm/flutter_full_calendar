@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/week_graph_size.dart';
 import '../../util/week_graph_util.dart';
 import '../../resources/sizes.dart';
 import '../../models/event.dart';
@@ -34,11 +35,7 @@ class WeekTableGraph extends StatelessWidget {
         width: size.width,
         padding: const EdgeInsets.all(AppSizes.spacingS),
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(
-              AppSizes.cardCornerRadius,
-            ),
-          ),
+          borderRadius: _createBorderRadius(size),
           border: Border.all(
             width: AppSizes.spacingXxs,
             color: color.border,
@@ -51,5 +48,18 @@ class WeekTableGraph extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  BorderRadius _createBorderRadius(WeekGraphSize size) {
+    const radius = Radius.circular(
+      AppSizes.cardCornerRadius,
+    );
+    if (size.continueFromPrevDay) {
+      return const BorderRadius.vertical(bottom: radius);
+    }
+    if (size.continueToNextDay) {
+      return const BorderRadius.vertical(top: radius);
+    }
+    return const BorderRadius.all(radius);
   }
 }
