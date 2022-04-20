@@ -4,25 +4,16 @@ import 'package:intl/intl.dart';
 
 import '../../providers/date_provider.dart';
 import '../../widgets/calendar_button.dart';
+import '../../models/calendar_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
 
-const navigateButtonPadding = EdgeInsets.symmetric(
-  horizontal: AppSizes.buttonVerticalPadding,
-  vertical: AppSizes.buttonVerticalPadding,
-);
-const leftRoundBorderRadius = BorderRadius.only(
-  topLeft: Radius.circular(AppSizes.spacingS),
-  bottomLeft: Radius.circular(AppSizes.spacingS),
-);
-const rightRoundBorderRadius = BorderRadius.only(
-  topRight: Radius.circular(AppSizes.spacingS),
-  bottomRight: Radius.circular(AppSizes.spacingS),
-);
-
 class CalendarNavigationBar extends StatefulWidget {
+  final void Function(CalendarType calendarType) onCalendarSelect;
+
   const CalendarNavigationBar({
     Key? key,
+    required this.onCalendarSelect,
   }) : super(key: key);
 
   @override
@@ -56,7 +47,8 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
           const SizedBox(width: AppSizes.spacingL),
           CalendarButton(
             child: const Text('today'),
-            onPressed: provider.isSelectedWeekNow ? null : () => provider.reset(),
+            onPressed:
+                provider.isSelectedWeekNow ? null : () => provider.reset(),
           ),
           Expanded(
             child: Text(
@@ -88,6 +80,11 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
   }
 
   _handleToggleButtonsPress(int index) {
+    _updateIsSelected(index);
+    widget.onCalendarSelect(_getCalendarType(index));
+  }
+
+  _updateIsSelected(int index) {
     setState(() {
       for (int buttonIndex = 0;
           buttonIndex < isSelected.length;
@@ -100,4 +97,26 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
       }
     });
   }
+
+  CalendarType _getCalendarType(int index) {
+    switch (index) {
+      case 0:
+        return CalendarType.week;
+      default:
+        return CalendarType.day;
+    }
+  }
 }
+
+const navigateButtonPadding = EdgeInsets.symmetric(
+  horizontal: AppSizes.buttonVerticalPadding,
+  vertical: AppSizes.buttonVerticalPadding,
+);
+const leftRoundBorderRadius = BorderRadius.only(
+  topLeft: Radius.circular(AppSizes.spacingS),
+  bottomLeft: Radius.circular(AppSizes.spacingS),
+);
+const rightRoundBorderRadius = BorderRadius.only(
+  topRight: Radius.circular(AppSizes.spacingS),
+  bottomRight: Radius.circular(AppSizes.spacingS),
+);

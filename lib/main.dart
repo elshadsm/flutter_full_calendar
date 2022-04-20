@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_full_calendar/providers/date_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/events_provider.dart';
-import 'pages/week_calendar/calendar_page.dart';
+import 'providers/events_provider.dart';
+import 'providers/date_provider.dart';
+import 'pages/main/main_page.dart';
 
 void main() {
   runApp(
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const CalendarPage(),
+      home: const MainPage(),
     );
   }
 }
