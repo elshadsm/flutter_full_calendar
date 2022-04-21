@@ -59,22 +59,26 @@ class _CalendarViewState extends State<CalendarView> {
             ),
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(
-                right: AppSizes.spacingL,
-                bottom: AppSizes.spacingL,
-              ),
+            child: Scrollbar(
               controller: _scrollController,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const HoursColumn(),
-                  Expanded(
-                    child: CalendarTable(
-                      calendarType: provider.type,
+              isAlwaysShown: true,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(
+                  right: AppSizes.spacingL,
+                  bottom: AppSizes.spacingL,
+                ),
+                controller: _scrollController,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const HoursColumn(),
+                    Expanded(
+                      child: CalendarTable(
+                        calendarType: provider.type,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

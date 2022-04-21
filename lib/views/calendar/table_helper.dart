@@ -28,56 +28,43 @@ class TableHelper {
     BuildContext context,
     DateTime date,
   ) {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    final dateFormat = provider.type == CalendarType.week
-        ? DateFormat.yMMMM()
-        : DateFormat.yMMMMd();
+    final dateFormat =
+        _isWeekCalendarType(context) ? DateFormat.yMMMM() : DateFormat.yMMMMd();
     return dateFormat.format(date);
   }
 
   UniqueKey getTableKey(CalendarType type) =>
       type == CalendarType.week ? _weekKey : _dayKey;
 
-  Map<int, TableColumnWidth> createColumnWidths(BuildContext context) {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    return provider.type == CalendarType.week
-        ? _createWeekTableColumnWidths()
-        : _createDayTableColumnWidths();
-  }
+  Map<int, TableColumnWidth> createColumnWidths(BuildContext context) =>
+      _isWeekCalendarType(context)
+          ? _createWeekTableColumnWidths()
+          : _createDayTableColumnWidths();
 
-  List<TableRow> createRows(BuildContext context, GlobalKey key) {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    return provider.type == CalendarType.week
-        ? _createWeekTableRows(key)
-        : _createDayTableRows(key);
-  }
+  List<TableRow> createRows(BuildContext context, GlobalKey key) =>
+      _isWeekCalendarType(context)
+          ? _createWeekTableRows(key)
+          : _createDayTableRows(key);
 
-  List<EventGraph> createGraphics(BuildContext context, double cellWidth) {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    return provider.type == CalendarType.week
-        ? TableHelper.instance._createWeekTableGraphics(
-            context,
-            cellWidth,
-          )
-        : TableHelper.instance._createDayTableGraphics(
-            context,
-            cellWidth,
-          );
-  }
+  List<EventGraph> createGraphics(BuildContext context, double cellWidth) =>
+      _isWeekCalendarType(context)
+          ? TableHelper.instance._createWeekTableGraphics(
+              context,
+              cellWidth,
+            )
+          : TableHelper.instance._createDayTableGraphics(
+              context,
+              cellWidth,
+            );
 
-  List<Widget> createHeaderCells(BuildContext context) {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    return provider.type == CalendarType.week
-        ? _createWeekHeaderCells(context)
-        : _createDayHeaderCells(context);
-  }
+  List<Widget> createHeaderCells(BuildContext context) =>
+      _isWeekCalendarType(context)
+          ? _createWeekHeaderCells(context)
+          : _createDayHeaderCells(context);
 
-  int getHeaderCellCount(BuildContext context) {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    return provider.type == CalendarType.week
-        ? DateTime.daysPerWeek
-        : Constants.groupCount;
-  }
+  int getHeaderCellCount(BuildContext context) => _isWeekCalendarType(context)
+      ? DateTime.daysPerWeek
+      : Constants.groupCount;
 
   Map<int, TableColumnWidth> _createWeekTableColumnWidths() => const {
         0: FlexColumnWidth(),
@@ -222,4 +209,9 @@ class TableHelper {
           ),
         ),
       );
+
+  _isWeekCalendarType(BuildContext context) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    return provider.type == CalendarType.week;
+  }
 }
