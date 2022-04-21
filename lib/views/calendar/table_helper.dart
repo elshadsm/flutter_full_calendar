@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
+import '../../providers/calendar_type_provider.dart';
 import '../../providers/events_provider.dart';
 import '../../providers/date_provider.dart';
 import '../../util/event_graph_util.dart';
 import '../../models/calendar_type.dart';
+import '../../resources/constants.dart';
+import '../../models/event_type.dart';
+import '../../resources/colors.dart';
+import '../../resources/sizes.dart';
 import '../../util/date_util.dart';
+import 'week_table_header_cell.dart';
 import 'calendar_table_cell.dart';
 import 'event_graph.dart';
 
@@ -17,27 +24,37 @@ class TableHelper {
   final _weekKey = UniqueKey();
   final _dayKey = UniqueKey();
 
+  String getNavigationTitle(
+    BuildContext context,
+    DateTime date,
+  ) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    final dateFormat = provider.type == CalendarType.week
+        ? DateFormat.yMMMM()
+        : DateFormat.yMMMMd();
+    return dateFormat.format(date);
+  }
+
   UniqueKey getTableKey(CalendarType type) =>
       type == CalendarType.week ? _weekKey : _dayKey;
 
-  Map<int, TableColumnWidth> createColumnWidths(CalendarType type) {
-    return type == CalendarType.week
+  Map<int, TableColumnWidth> createColumnWidths(BuildContext context) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    return provider.type == CalendarType.week
         ? _createWeekTableColumnWidths()
         : _createDayTableColumnWidths();
   }
 
-  List<TableRow> createRows(CalendarType type, GlobalKey key) {
-    return type == CalendarType.week
+  List<TableRow> createRows(BuildContext context, GlobalKey key) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    return provider.type == CalendarType.week
         ? _createWeekTableRows(key)
         : _createDayTableRows(key);
   }
 
-  List<EventGraph> createGraphics(
-    BuildContext context,
-    CalendarType type,
-    double cellWidth,
-  ) {
-    return type == CalendarType.week
+  List<EventGraph> createGraphics(BuildContext context, double cellWidth) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    return provider.type == CalendarType.week
         ? TableHelper.instance._createWeekTableGraphics(
             context,
             cellWidth,
@@ -46,6 +63,20 @@ class TableHelper {
             context,
             cellWidth,
           );
+  }
+
+  List<Widget> createHeaderCells(BuildContext context) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    return provider.type == CalendarType.week
+        ? _createWeekHeaderCells(context)
+        : _createDayHeaderCells(context);
+  }
+
+  int getHeaderCellCount(BuildContext context) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    return provider.type == CalendarType.week
+        ? DateTime.daysPerWeek
+        : Constants.groupCount;
   }
 
   Map<int, TableColumnWidth> _createWeekTableColumnWidths() => const {
@@ -156,4 +187,39 @@ class TableHelper {
     }
     return graphics;
   }
+
+  List<Widget> _createWeekHeaderCells(BuildContext context) {
+    final provider = Provider.of<DateProvider>(context, listen: false);
+    List<Widget> cells = [];
+    final selectedDate = provider.selectedDate;
+    final startOfTheWeek = DateUtil.getStartOfTheWeek(selectedDate);
+    for (int i = 0; i < DateTime.daysPerWeek; i++) {
+      final weekDayDate = startOfTheWeek.add(
+        Duration(days: i),
+      );
+      cells.add(
+        WeekTableHeaderCell(weekDayDate: weekDayDate),
+      );
+    }
+    return cells;
+  }
+
+  List<Widget> _createDayHeaderCells(BuildContext context) =>
+      List<Widget>.generate(
+        Constants.groupCount,
+        (i) => Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSizes.spacingL),
+            child: Center(
+              child: Text(
+                'Room ${EventType.values[i].value}',
+                style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                      color: AppColors.primaryText,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
+          ),
+        ),
+      );
 }

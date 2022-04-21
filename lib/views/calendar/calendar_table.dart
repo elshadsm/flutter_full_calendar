@@ -9,10 +9,8 @@ import 'table_helper.dart';
 import 'event_graph.dart';
 
 class CalendarTable extends StatefulWidget {
-  final CalendarType calendarType;
-
   CalendarTable({
-    required this.calendarType,
+    calendarType,
   }) : super(
           key: TableHelper.instance.getTableKey(
             calendarType,
@@ -65,11 +63,11 @@ class _CalendarTableState extends State<CalendarTable> {
               color: AppColors.dividerBackground,
             ),
             columnWidths: TableHelper.instance.createColumnWidths(
-              widget.calendarType,
+              context,
             ),
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: TableHelper.instance.createRows(
-              widget.calendarType,
+              context,
               _firstCellKey,
             ),
           ),
@@ -90,7 +88,6 @@ class _CalendarTableState extends State<CalendarTable> {
       () => {
         _graphics = TableHelper.instance.createGraphics(
           context,
-          widget.calendarType,
           renderBox.size.width,
         )
       },

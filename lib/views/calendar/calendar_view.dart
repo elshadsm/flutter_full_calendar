@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../models/calendar_type.dart';
+import '../../providers/calendar_type_provider.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
 import 'calendar_navigation_bar.dart';
-import 'week_table_header.dart';
-import 'day_table_header.dart';
+import 'calendar_table_header.dart';
 import 'calendar_table.dart';
 import 'hours_column.dart';
 
@@ -21,7 +21,6 @@ class CalendarView extends StatefulWidget {
 class _CalendarViewState extends State<CalendarView> {
   late final ScrollController _scrollController;
 
-  CalendarType _calendarType = CalendarType.week;
   var _scrolled = false;
 
   @override
@@ -32,6 +31,7 @@ class _CalendarViewState extends State<CalendarView> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<CalendarTypeProvider>(context);
     return Container(
       color: Colors.white,
       child: Column(
@@ -43,23 +43,16 @@ class _CalendarViewState extends State<CalendarView> {
             thickness: AppSizes.spacingS,
             color: AppColors.darkYellow,
           ),
-          CalendarNavigationBar(
-            onCalendarSelect: (CalendarType type) =>
-                setState(() => _calendarType = type),
-          ),
+          const CalendarNavigationBar(),
           const Divider(
             color: AppColors.dividerBackground,
             height: AppSizes.dividerSize,
             thickness: AppSizes.dividerSize,
           ),
           const SizedBox(height: AppSizes.spacingL),
-          _calendarType == CalendarType.week
-              ? WeekTableHeader(
-                  showBottomBorder: _scrolled,
-                )
-              : DayTableHeader(
-                  showBottomBorder: _scrolled,
-                ),
+          CalendarTableHeader(
+            showBottomBorder: _scrolled,
+          ),
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -69,7 +62,7 @@ class _CalendarViewState extends State<CalendarView> {
                   const HoursColumn(),
                   Expanded(
                     child: CalendarTable(
-                      calendarType: _calendarType,
+                      calendarType: provider.type,
                     ),
                   ),
                 ],

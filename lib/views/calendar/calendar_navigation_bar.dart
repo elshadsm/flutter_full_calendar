@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
+import '../../providers/calendar_type_provider.dart';
 import '../../providers/date_provider.dart';
 import '../../widgets/calendar_button.dart';
 import '../../models/calendar_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
+import 'table_helper.dart';
 
 class CalendarNavigationBar extends StatefulWidget {
-  final void Function(CalendarType calendarType) onCalendarSelect;
-
   const CalendarNavigationBar({
     Key? key,
-    required this.onCalendarSelect,
   }) : super(key: key);
 
   @override
@@ -21,11 +19,13 @@ class CalendarNavigationBar extends StatefulWidget {
 }
 
 class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
-  final List<bool> isSelected = [true, false];
+  List<bool> _isSelected = [];
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<DateProvider>(context);
+    final todayButtonPressedHandler = _createTodayButtonPressedHandler();
+    _initIsSelected();
     return Padding(
       padding: const EdgeInsets.all(AppSizes.spacingL),
       child: Row(
@@ -35,24 +35,26 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
             padding: navigateButtonPadding,
             borderRadius: leftRoundBorderRadius,
             child: const Icon(Icons.navigate_before),
-            onPressed: () => provider.selectPrevWeek(),
+            onPressed: _handlePrevSelect,
           ),
           const SizedBox(width: AppSizes.spacingXxs),
           CalendarButton(
             padding: navigateButtonPadding,
             borderRadius: rightRoundBorderRadius,
             child: const Icon(Icons.navigate_next),
-            onPressed: () => provider.selectNextWeek(),
+            onPressed: _handleNextSelect,
           ),
           const SizedBox(width: AppSizes.spacingL),
           CalendarButton(
             child: const Text('today'),
-            onPressed:
-                provider.isSelectedWeekNow ? null : () => provider.reset(),
+            onPressed: todayButtonPressedHandler,
           ),
           Expanded(
             child: Text(
-              DateFormat.yMMMM().format(provider.selectedDate),
+              TableHelper.instance.getNavigationTitle(
+                context,
+                provider.selectedDate,
+              ),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headline5,
             ),
@@ -71,7 +73,7 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
                 Text('day'),
               ],
               onPressed: _handleToggleButtonsPress,
-              isSelected: isSelected,
+              isSelected: _isSelected,
             ),
           ),
         ],
@@ -79,23 +81,17 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
     );
   }
 
-  _handleToggleButtonsPress(int index) {
-    _updateIsSelected(index);
-    widget.onCalendarSelect(_getCalendarType(index));
+  _initIsSelected() {
+    final provider = Provider.of<CalendarTypeProvider>(context);
+    _isSelected = [
+      provider.type == CalendarType.week,
+      provider.type == CalendarType.day,
+    ];
   }
 
-  _updateIsSelected(int index) {
-    setState(() {
-      for (int buttonIndex = 0;
-          buttonIndex < isSelected.length;
-          buttonIndex++) {
-        if (buttonIndex == index) {
-          isSelected[buttonIndex] = true;
-        } else {
-          isSelected[buttonIndex] = false;
-        }
-      }
-    });
+  _handleToggleButtonsPress(int index) {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    provider.type = _getCalendarType(index);
   }
 
   CalendarType _getCalendarType(int index) {
@@ -105,6 +101,38 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
       default:
         return CalendarType.day;
     }
+  }
+
+  _handlePrevSelect() {
+    final provider = Provider.of<DateProvider>(context, listen: false);
+    if (_isWeekCalendarType()) {
+      provider.selectPrevWeek();
+    } else {
+      provider.selectPrevDay();
+    }
+  }
+
+  _handleNextSelect() {
+    final provider = Provider.of<DateProvider>(context, listen: false);
+    if (_isWeekCalendarType()) {
+      provider.selectNextWeek();
+    } else {
+      provider.selectNextDay();
+    }
+  }
+
+  VoidCallback? _createTodayButtonPressedHandler() {
+    final provider = Provider.of<DateProvider>(context, listen: false);
+    if (_isWeekCalendarType()) {
+      return provider.isSelectedWeekNow ? null : () => provider.reset();
+    } else {
+      return provider.isSelectedDateToday ? null : () => provider.reset();
+    }
+  }
+
+  _isWeekCalendarType() {
+    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
+    return provider.type == CalendarType.week;
   }
 }
 

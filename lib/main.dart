@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/calendar_type_provider.dart';
 import 'providers/events_provider.dart';
 import 'providers/date_provider.dart';
 import 'pages/main/main_page.dart';
@@ -14,6 +15,9 @@ void main() {
         ),
         ChangeNotifierProvider.value(
           value: DateProvider(),
+        ),
+        ChangeNotifierProvider.value(
+          value: CalendarTypeProvider(),
         ),
       ],
       child: const MyApp(),
