@@ -49,12 +49,21 @@ class _CalendarViewState extends State<CalendarView> {
             height: AppSizes.dividerSize,
             thickness: AppSizes.dividerSize,
           ),
-          const SizedBox(height: AppSizes.spacingL),
-          CalendarTableHeader(
-            showBottomBorder: _scrolled,
+          Padding(
+            padding: const EdgeInsets.only(
+              top: AppSizes.spacingL,
+              right: AppSizes.spacingL,
+            ),
+            child: CalendarTableHeader(
+              showBottomBorder: _scrolled,
+            ),
           ),
           Expanded(
             child: SingleChildScrollView(
+              padding: const EdgeInsets.only(
+                right: AppSizes.spacingL,
+                bottom: AppSizes.spacingL,
+              ),
               controller: _scrollController,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
