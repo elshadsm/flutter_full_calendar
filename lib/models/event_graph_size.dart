@@ -1,4 +1,4 @@
-class WeekGraphSize {
+class EventGraphSize {
   final double left;
   final double top;
   final double width;
@@ -6,7 +6,7 @@ class WeekGraphSize {
   final bool continueFromPrevDay;
   final bool continueToNextDay;
 
-  WeekGraphSize({
+  EventGraphSize({
     required this.left,
     required this.top,
     required this.width,

@@ -4,8 +4,8 @@ import '../../widgets/vertical_table_separators.dart';
 import '../../resources/sizes.dart';
 import '../../util/date_util.dart';
 
-class WeekTableHoursColumn extends StatelessWidget {
-  const WeekTableHoursColumn({
+class HoursColumn extends StatelessWidget {
+  const HoursColumn({
     Key? key,
   }) : super(key: key);
 
@@ -15,9 +15,9 @@ class WeekTableHoursColumn extends StatelessWidget {
       children: [
         Column(
           children: [
-            const SizedBox(height: AppSizes.weekTableCellHeight / 2),
+            const SizedBox(height: AppSizes.tableCellHeight / 2),
             ..._createCells(context),
-            const SizedBox(height: AppSizes.weekTableCellHeight / 2),
+            const SizedBox(height: AppSizes.tableCellHeight / 2),
           ],
         ),
         const Positioned.fill(
@@ -25,8 +25,8 @@ class WeekTableHoursColumn extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: VerticalTableSeparators(
               cellCount: DateUtil.hoursPerDay,
-              cellWidth: AppSizes.weekTableHourCellSeparator,
-              cellHeight: AppSizes.weekTableCellHeight,
+              cellWidth: AppSizes.hourCellSeparator,
+              cellHeight: AppSizes.tableCellHeight,
             ),
           ),
         ),
@@ -37,8 +37,8 @@ class WeekTableHoursColumn extends StatelessWidget {
   List<Widget> _createCells(BuildContext context) => List<SizedBox>.generate(
         DateUtil.hoursPerDay - 1,
         (i) => SizedBox(
-          width: AppSizes.weekTableHourCellWidth,
-          height: AppSizes.weekTableCellHeight,
+          width: AppSizes.hourCellWidth,
+          height: AppSizes.tableCellHeight,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -50,7 +50,7 @@ class WeekTableHoursColumn extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                width: AppSizes.spacing + AppSizes.weekTableHourCellSeparator,
+                width: AppSizes.spacing + AppSizes.hourCellSeparator,
               ),
             ],
           ),

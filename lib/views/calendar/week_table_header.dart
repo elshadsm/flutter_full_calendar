@@ -21,7 +21,7 @@ class WeekTableHeader extends StatelessWidget {
     final provider = Provider.of<DateProvider>(context);
     return Padding(
       padding: const EdgeInsets.only(
-        left: AppSizes.weekTableHourCellWidth,
+        left: AppSizes.hourCellWidth,
       ),
       child: Stack(
         children: [
@@ -34,7 +34,7 @@ class WeekTableHeader extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: HorizontalTableSeparators(
                 cellCount: DateTime.daysPerWeek,
-                cellHeight: AppSizes.weekTableHeaderSeparator,
+                cellHeight: AppSizes.tableHeaderSeparator,
                 showBottomBorder: showBottomBorder,
               ),
             ),

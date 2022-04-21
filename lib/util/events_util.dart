@@ -46,7 +46,7 @@ class EventsUtil {
     var random = Random();
     var number = 0;
     var oldNumber = 0;
-    while (number < DateUtil.hoursPerDay) {
+    while (number < DateUtil.hoursPerDay - 3) {
       oldNumber = number;
       number = number + random.nextInt(4) + 1;
       events.add(

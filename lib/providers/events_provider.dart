@@ -14,6 +14,11 @@ class EventsProvider extends ChangeNotifier {
     return _createAllWeekDayEvents(date, events);
   }
 
+  List<Event> getDayEvents(DateTime date) {
+    _initEvents();
+    return _extractDayEvents(date);
+  }
+
   _initEvents() {
     _events = EventsUtil.instance.events;
     _events.sort((a, b) => a.from.compareTo(b.from));
@@ -27,10 +32,26 @@ class EventsProvider extends ChangeNotifier {
       if (event.from.isAfter(endOfTheWeek)) {
         break;
       }
-      if (event.from.isAfter(startOfTheWeek) ||
-          event.to.isAfter(startOfTheWeek)) {
-        events.add(event);
+      if (event.to.isBefore(startOfTheWeek)) {
+        continue;
       }
+      events.add(event);
+    }
+    return events;
+  }
+
+  List<Event> _extractDayEvents(DateTime date) {
+    final List<Event> events = [];
+    final starOfDay = DateUtil.getStartOfDay(date);
+    final endOfDay = DateUtil.getEndOfDay(date);
+    for (var event in _events) {
+      if (event.from.isAfter(endOfDay)) {
+        break;
+      }
+      if (event.to.isBefore(starOfDay)) {
+        continue;
+      }
+      events.add(event);
     }
     return events;
   }

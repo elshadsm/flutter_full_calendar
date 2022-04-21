@@ -4,9 +4,10 @@ import '../../models/calendar_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
 import 'calendar_navigation_bar.dart';
-import 'week_table_hours_column.dart';
 import 'week_table_header.dart';
-import 'week_table.dart';
+import 'day_table_header.dart';
+import 'calendar_table.dart';
+import 'hours_column.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({
@@ -52,18 +53,24 @@ class _CalendarViewState extends State<CalendarView> {
             thickness: AppSizes.dividerSize,
           ),
           const SizedBox(height: AppSizes.spacingL),
-          WeekTableHeader(
-            showBottomBorder: _scrolled,
-          ),
+          _calendarType == CalendarType.week
+              ? WeekTableHeader(
+                  showBottomBorder: _scrolled,
+                )
+              : DayTableHeader(
+                  showBottomBorder: _scrolled,
+                ),
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  WeekTableHoursColumn(),
+                children: [
+                  const HoursColumn(),
                   Expanded(
-                    child: WeekTable(),
+                    child: CalendarTable(
+                      calendarType: _calendarType,
+                    ),
                   ),
                 ],
               ),

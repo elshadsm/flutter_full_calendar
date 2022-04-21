@@ -1,38 +1,30 @@
 import 'package:flutter/material.dart';
 
-import '../../models/week_graph_size.dart';
-import '../../util/week_graph_util.dart';
+import '../../util/event_graph_util.dart';
+import '../../models/event_graph_size.dart';
 import '../../resources/sizes.dart';
 import '../../models/event.dart';
-import 'week_table_graph_text.dart';
+import 'event_graph_text.dart';
 
-class WeekTableGraph extends StatelessWidget {
+class EventGraph extends StatelessWidget {
   final Event event;
-  final int weekDay;
-  final double cellWidth;
+  final EventGraphSize size;
 
-  const WeekTableGraph({
+  const EventGraph({
     Key? key,
     required this.event,
-    required this.weekDay,
-    required this.cellWidth,
+    required this.size,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final size = WeekGraphUtil.instance.calculateSize(
-      context: context,
-      event: event,
-      weekDay: weekDay,
-      cellWidth: cellWidth,
-    );
-    final color = WeekGraphUtil.instance.getColor(event);
+    final color = EventGraphUtil.instance.getColor(event);
     return Positioned(
       left: size.left,
       top: size.top,
       child: Container(
-        height: size.height,
         width: size.width,
+        height: size.height,
         padding: const EdgeInsets.all(AppSizes.spacingS),
         decoration: BoxDecoration(
           borderRadius: _createBorderRadius(size),
@@ -42,7 +34,7 @@ class WeekTableGraph extends StatelessWidget {
           ),
           color: color.background,
         ),
-        child: WeekTableGraphText(
+        child: EventGraphText(
           event: event,
           color: color.text,
         ),
@@ -50,7 +42,7 @@ class WeekTableGraph extends StatelessWidget {
     );
   }
 
-  BorderRadius _createBorderRadius(WeekGraphSize size) {
+  BorderRadius _createBorderRadius(EventGraphSize size) {
     const radius = Radius.circular(
       AppSizes.cardCornerRadius,
     );

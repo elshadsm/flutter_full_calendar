@@ -26,8 +26,8 @@ abstract class AppSizes {
   static const double buttonVerticalPadding = 12;
 
   static const double dividerSize = 1;
-  static const double weekTableHourCellWidth = 64;
-  static const double weekTableHourCellSeparator = 8;
-  static const double weekTableHeaderSeparator = 20;
-  static const double weekTableCellHeight = 64;
+  static const double hourCellWidth = 64;
+  static const double hourCellSeparator = 8;
+  static const double tableHeaderSeparator = 20;
+  static const double tableCellHeight = 64;
 }

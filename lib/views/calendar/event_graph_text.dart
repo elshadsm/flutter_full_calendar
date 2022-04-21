@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../util/week_graph_util.dart';
+import '../../util/event_graph_util.dart';
 import '../../models/event.dart';
 
-class WeekTableGraphText extends StatelessWidget {
+class EventGraphText extends StatelessWidget {
   final Event event;
   final Color color;
 
-  const WeekTableGraphText({
+  const EventGraphText({
     Key? key,
     required this.event,
     required this.color,
@@ -28,7 +28,7 @@ class WeekTableGraphText extends StatelessWidget {
           ),
           children: [
             TextSpan(
-              text: WeekGraphUtil.instance.getHourText(event),
+              text: EventGraphUtil.instance.getHourText(event),
               style: textTheme.overline!.copyWith(
                 color: color,
                 letterSpacing: 0.25,

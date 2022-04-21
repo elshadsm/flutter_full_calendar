@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-import '../models/week_graph_color.dart';
+import '../models/event_graph_color.dart';
 import '../providers/date_provider.dart';
-import '../models/week_graph_size.dart';
+import '../models/event_graph_size.dart';
 import '../models/event_type.dart';
 import '../resources/colors.dart';
 import '../resources/sizes.dart';
@@ -13,79 +13,93 @@ import '../models/event.dart';
 
 const rightPadding = AppSizes.spacingL;
 
-class WeekGraphUtil {
-  WeekGraphUtil._privateConstructor();
+class EventGraphUtil {
+  EventGraphUtil._privateConstructor();
 
-  static final instance = WeekGraphUtil._privateConstructor();
+  static final instance = EventGraphUtil._privateConstructor();
 
-  WeekGraphSize calculateSize({
-    required BuildContext context,
+  EventGraphSize calculateSizeForWeekCalendar({
     required Event event,
+    required DateTime date,
     required int weekDay,
     required double cellWidth,
   }) {
-    final provider = Provider.of<DateProvider>(context, listen: false);
-    final selectedDate = provider.selectedDate;
-    final weekDayDate = DateUtil.getStartOfTheWeek(selectedDate).add(
+    final weekDayDate = DateUtil.getStartOfTheWeek(date).add(
       Duration(days: weekDay - 1),
     );
-    final continueFromPrevDay = _determineContinueFromPrevDay(
-      event,
-      weekDayDate,
-    );
-    final continueToNextDay = _determineContinueToNextDay(event, weekDayDate);
+    final continueFromPrevDay = _checkContinueFromPrevDay(event, weekDayDate);
+    final continueToNextDay = _checkContinueToNextDay(event, weekDayDate);
     final top = _calculateTop(event, continueFromPrevDay);
     final bottom = _calculateBottom(event, continueToNextDay);
-    return WeekGraphSize(
-      left: _calculateLeft(event, cellWidth, weekDayDate),
+    return EventGraphSize(
+      left: _calculateWeekLeft(event, cellWidth, weekDayDate),
       top: top,
-      width: _calculateWidth(cellWidth),
+      width: _calculateWeekWidth(cellWidth),
       height: bottom - top,
       continueFromPrevDay: continueFromPrevDay,
       continueToNextDay: continueToNextDay,
     );
   }
 
-  WeekGraphColor getColor(Event event) {
+  EventGraphSize calculateSizeForDayCalendar({
+    required Event event,
+    required DateTime date,
+    required double cellWidth,
+  }) {
+    final continueFromPrevDay = _checkContinueFromPrevDay(event, date);
+    final continueToNextDay = _checkContinueToNextDay(event, date);
+    final top = _calculateTop(event, continueFromPrevDay);
+    final bottom = _calculateBottom(event, continueToNextDay);
+    return EventGraphSize(
+      left: _calculateDayLeft(event, cellWidth),
+      top: top,
+      width: _calculateDayWidth(cellWidth),
+      height: bottom - top,
+      continueFromPrevDay: continueFromPrevDay,
+      continueToNextDay: continueToNextDay,
+    );
+  }
+
+  EventGraphColor getColor(Event event) {
     switch (event.type) {
       case EventType.a:
-        return WeekGraphColor(
+        return EventGraphColor(
           background: AppColors.lightRed,
           text: AppColors.darkRed,
           border: AppColors.red,
         );
       case EventType.b:
-        return WeekGraphColor(
+        return EventGraphColor(
           background: AppColors.lightGreen,
           text: AppColors.darkGreen,
           border: AppColors.green,
         );
       case EventType.c:
-        return WeekGraphColor(
+        return EventGraphColor(
           background: AppColors.lightBlue,
           text: AppColors.darkBlue,
           border: AppColors.blue,
         );
       case EventType.d:
-        return WeekGraphColor(
+        return EventGraphColor(
           background: AppColors.lightPurple,
           text: AppColors.darkPurple,
           border: AppColors.purple,
         );
       case EventType.e:
-        return WeekGraphColor(
+        return EventGraphColor(
           background: AppColors.lightYellow,
           text: AppColors.darkYellow,
           border: AppColors.yellow,
         );
       case EventType.f:
-        return WeekGraphColor(
+        return EventGraphColor(
           background: AppColors.lightCyan,
           text: AppColors.darkCyan,
           border: AppColors.cyan,
         );
       default:
-        return WeekGraphColor(
+        return EventGraphColor(
           background: AppColors.lightRed,
           text: AppColors.darkRed,
           border: AppColors.red,
@@ -98,29 +112,36 @@ class WeekGraphUtil {
     return '${dateFormat.format(event.from)} - ${dateFormat.format(event.to)}';
   }
 
-  bool _determineContinueFromPrevDay(
+  bool _checkContinueFromPrevDay(
     Event event,
-    DateTime weekDayDate,
+    DateTime date,
   ) {
-    final startOfWeekDay = DateUtil.getStartOfDay(weekDayDate);
+    final startOfWeekDay = DateUtil.getStartOfDay(date);
     return event.from.isBefore(startOfWeekDay);
   }
 
-  bool _determineContinueToNextDay(
+  bool _checkContinueToNextDay(
     Event event,
-    DateTime weekDayDate,
+    DateTime date,
   ) {
-    final endOfWeekDay = DateUtil.getEndOfDay(weekDayDate);
+    final endOfWeekDay = DateUtil.getEndOfDay(date);
     return event.to.isAfter(endOfWeekDay);
   }
 
-  double _calculateLeft(
+  double _calculateWeekLeft(
     Event event,
     double cellWidth,
     DateTime weekDayDate,
   ) {
     final margin = _calculateLeftMargin(event, cellWidth);
     return (weekDayDate.weekday - 1) * cellWidth + margin;
+  }
+
+  double _calculateDayLeft(
+    Event event,
+    double cellWidth,
+  ) {
+    return (event.type.index) * cellWidth;
   }
 
   double _calculateTop(
@@ -130,11 +151,15 @@ class WeekGraphUtil {
     final rate = continueFromPrevDay
         ? 0
         : (event.from.hour + event.from.minute / DateUtil.minutesPerHour);
-    return rate * AppSizes.weekTableCellHeight;
+    return rate * AppSizes.tableCellHeight;
   }
 
-  double _calculateWidth(double cellWidth) {
+  double _calculateWeekWidth(double cellWidth) {
     return (cellWidth - rightPadding) / 2;
+  }
+
+  double _calculateDayWidth(double cellWidth) {
+    return cellWidth - rightPadding;
   }
 
   double _calculateBottom(
@@ -144,7 +169,7 @@ class WeekGraphUtil {
     final rate = continueToNextDay
         ? DateUtil.hoursPerDay
         : (event.to.hour + event.to.minute / DateUtil.minutesPerHour);
-    return rate * AppSizes.weekTableCellHeight;
+    return rate * AppSizes.tableCellHeight;
   }
 
   double _calculateLeftMargin(

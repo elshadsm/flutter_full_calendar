@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class WeekGraphColor {
+class EventGraphColor {
   final Color background;
   final Color text;
   final Color border;
 
-  WeekGraphColor({
+  EventGraphColor({
     required this.background,
     required this.text,
     required this.border,
