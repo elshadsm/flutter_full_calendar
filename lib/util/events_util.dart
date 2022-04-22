@@ -16,10 +16,11 @@ class EventsUtil {
   List<Event> events = [];
 
   void _generateRandomEvents() {
-    for (int i = 0; i < 7; i++) {
-      final date = Jiffy().startOf(Units.WEEK).dateTime.add(
-            Duration(days: i + 1),
-          );
+    final startOfWeek = Jiffy().startOf(Units.WEEK).dateTime;
+    for (int i = 0; i < 21; i++) {
+      final date = startOfWeek.add(
+        Duration(days: i + 1),
+      );
       events.addAll(
         _createEvents(EventType.a, date),
       );
