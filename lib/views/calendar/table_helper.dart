@@ -49,11 +49,11 @@ class TableHelper {
 
   List<EventGraph> createGraphics(BuildContext context, double cellWidth) =>
       CalendarUtil.isWeekCalendar(context)
-          ? TableHelper.instance._createWeekTableGraphics(
+          ? _createWeekTableGraphics(
               context,
               cellWidth,
             )
-          : TableHelper.instance._createDayTableGraphics(
+          : _createDayTableGraphics(
               context,
               cellWidth,
             );
