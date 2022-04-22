@@ -5,6 +5,7 @@ import '../../providers/calendar_type_provider.dart';
 import '../../providers/date_provider.dart';
 import '../../widgets/calendar_button.dart';
 import '../../models/calendar_type.dart';
+import '../../util/calendar_util.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
 import '../../util/date_util.dart';
@@ -106,7 +107,7 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
 
   _handlePrevSelect() {
     final provider = Provider.of<DateProvider>(context, listen: false);
-    if (_isWeekCalendarType()) {
+    if (CalendarUtil.isWeekCalendar(context)) {
       provider.selectPrevWeek();
     } else {
       provider.selectPrevDay();
@@ -115,7 +116,7 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
 
   _handleNextSelect() {
     final provider = Provider.of<DateProvider>(context, listen: false);
-    if (_isWeekCalendarType()) {
+    if (CalendarUtil.isWeekCalendar(context)) {
       provider.selectNextWeek();
     } else {
       provider.selectNextDay();
@@ -125,16 +126,13 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
   VoidCallback? _createTodayButtonPressedHandler() {
     final provider = Provider.of<DateProvider>(context, listen: false);
     final selectedDate = provider.selectedDate;
-    if (_isWeekCalendarType()) {
-      return DateUtil.isCurrentWeek(selectedDate) ? null : () => provider.reset();
+    if (CalendarUtil.isWeekCalendar(context)) {
+      return DateUtil.isCurrentWeek(selectedDate)
+          ? null
+          : () => provider.reset();
     } else {
       return DateUtil.isToday(selectedDate) ? null : () => provider.reset();
     }
-  }
-
-  _isWeekCalendarType() {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    return provider.type == CalendarType.week;
   }
 }
 

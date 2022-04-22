@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-import '../../providers/calendar_type_provider.dart';
 import '../../providers/events_provider.dart';
 import '../../providers/date_provider.dart';
 import '../../util/event_graph_util.dart';
 import '../../models/calendar_type.dart';
 import '../../resources/constants.dart';
+import '../../util/calendar_util.dart';
 import '../../models/event_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
@@ -28,8 +28,9 @@ class TableHelper {
     BuildContext context,
     DateTime date,
   ) {
-    final dateFormat =
-        _isWeekCalendarType(context) ? DateFormat.yMMMM() : DateFormat.yMMMMd();
+    final dateFormat = CalendarUtil.isWeekCalendar(context)
+        ? DateFormat.yMMMM()
+        : DateFormat.yMMMMd();
     return dateFormat.format(date);
   }
 
@@ -37,17 +38,17 @@ class TableHelper {
       type == CalendarType.week ? _weekKey : _dayKey;
 
   Map<int, TableColumnWidth> createColumnWidths(BuildContext context) =>
-      _isWeekCalendarType(context)
+      CalendarUtil.isWeekCalendar(context)
           ? _createWeekTableColumnWidths()
           : _createDayTableColumnWidths();
 
   List<TableRow> createRows(BuildContext context, GlobalKey key) =>
-      _isWeekCalendarType(context)
+      CalendarUtil.isWeekCalendar(context)
           ? _createWeekTableRows(key)
           : _createDayTableRows(key);
 
   List<EventGraph> createGraphics(BuildContext context, double cellWidth) =>
-      _isWeekCalendarType(context)
+      CalendarUtil.isWeekCalendar(context)
           ? TableHelper.instance._createWeekTableGraphics(
               context,
               cellWidth,
@@ -58,13 +59,14 @@ class TableHelper {
             );
 
   List<Widget> createHeaderCells(BuildContext context) =>
-      _isWeekCalendarType(context)
+      CalendarUtil.isWeekCalendar(context)
           ? _createWeekHeaderCells(context)
           : _createDayHeaderCells(context);
 
-  int getHeaderCellCount(BuildContext context) => _isWeekCalendarType(context)
-      ? DateTime.daysPerWeek
-      : Constants.groupCount;
+  int getHeaderCellCount(BuildContext context) =>
+      CalendarUtil.isWeekCalendar(context)
+          ? DateTime.daysPerWeek
+          : Constants.groupCount;
 
   Map<int, TableColumnWidth> _createWeekTableColumnWidths() => const {
         0: FlexColumnWidth(),
@@ -209,9 +211,4 @@ class TableHelper {
           ),
         ),
       );
-
-  _isWeekCalendarType(BuildContext context) {
-    final provider = Provider.of<CalendarTypeProvider>(context, listen: false);
-    return provider.type == CalendarType.week;
-  }
 }
