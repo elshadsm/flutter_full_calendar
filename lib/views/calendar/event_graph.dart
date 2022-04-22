@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../util/event_graph_util.dart';
 import '../../models/event_graph_size.dart';
+import '../../util/event_graph_util.dart';
 import '../../resources/sizes.dart';
 import '../../models/event.dart';
 import 'event_graph_text.dart';
+import 'event_dialog.dart';
 
 class EventGraph extends StatelessWidget {
   final Event event;
@@ -19,24 +20,37 @@ class EventGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = EventGraphUtil.instance.getColor(event);
+    final borderRadius = _createBorderRadius(size);
     return Positioned(
       left: size.left,
       top: size.top,
-      child: Container(
-        width: size.width,
-        height: size.height,
-        padding: const EdgeInsets.all(AppSizes.spacingS),
-        decoration: BoxDecoration(
-          borderRadius: _createBorderRadius(size),
-          border: Border.all(
-            width: AppSizes.spacingXxs,
-            color: color.border,
+      child: Material(
+        borderRadius: borderRadius,
+        child: InkWell(
+          onTap: () => _handleTap(
+            context,
+            color.border,
           ),
-          color: color.background,
-        ),
-        child: EventGraphText(
-          event: event,
-          color: color.text,
+          customBorder: RoundedRectangleBorder(
+            borderRadius: borderRadius,
+          ),
+          child: Ink(
+            width: size.width,
+            height: size.height,
+            padding: const EdgeInsets.all(AppSizes.spacingS),
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              border: Border.all(
+                width: AppSizes.spacingXxs,
+                color: color.border,
+              ),
+              color: color.background,
+            ),
+            child: EventGraphText(
+              event: event,
+              color: color.text,
+            ),
+          ),
         ),
       ),
     );
@@ -53,5 +67,18 @@ class EventGraph extends StatelessWidget {
       return const BorderRadius.vertical(top: radius);
     }
     return const BorderRadius.all(radius);
+  }
+
+  _handleTap(
+    BuildContext context,
+    Color color,
+  ) {
+    showDialog(
+      context: context,
+      builder: (_) => EventDialog(
+        event: event,
+        color: color,
+      ),
+    );
   }
 }
