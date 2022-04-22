@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_full_calendar/util/date_util.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -18,10 +19,8 @@ class WeekTableHeaderCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<DateProvider>(context);
     final textTheme = Theme.of(context).textTheme;
-    final day = weekDayDate.day;
-    final isToday = provider.isTodayInSelectedWeek(day);
+    final isToday = DateUtil.isToday(weekDayDate);
     return Expanded(
       child: Column(
         children: [
@@ -35,7 +34,7 @@ class WeekTableHeaderCell extends StatelessWidget {
           const SizedBox(height: AppSizes.spacing),
           TextButton(
             child: Text(
-              day.toString(),
+              weekDayDate.day.toString(),
               style: textTheme.headline5?.copyWith(
                 color: isToday ? Colors.white : AppColors.blue,
               ),

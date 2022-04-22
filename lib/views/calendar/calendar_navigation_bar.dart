@@ -7,6 +7,7 @@ import '../../widgets/calendar_button.dart';
 import '../../models/calendar_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
+import '../../util/date_util.dart';
 import 'table_helper.dart';
 
 class CalendarNavigationBar extends StatefulWidget {
@@ -123,10 +124,11 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
 
   VoidCallback? _createTodayButtonPressedHandler() {
     final provider = Provider.of<DateProvider>(context, listen: false);
+    final selectedDate = provider.selectedDate;
     if (_isWeekCalendarType()) {
-      return provider.isSelectedWeekNow ? null : () => provider.reset();
+      return DateUtil.isCurrentWeek(selectedDate) ? null : () => provider.reset();
     } else {
-      return provider.isSelectedDateToday ? null : () => provider.reset();
+      return DateUtil.isToday(selectedDate) ? null : () => provider.reset();
     }
   }
 
