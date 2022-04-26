@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../models/event_graph_color.dart';
-import '../providers/date_provider.dart';
 import '../models/event_graph_size.dart';
 import '../models/event_type.dart';
 import '../resources/colors.dart';
@@ -11,7 +8,7 @@ import '../resources/sizes.dart';
 import '../util/date_util.dart';
 import '../models/event.dart';
 
-const rightPadding = AppSizes.spacingL;
+const rightPadding = AppSizes.spacing;
 
 class EventGraphUtil {
   EventGraphUtil._privateConstructor();
@@ -29,12 +26,13 @@ class EventGraphUtil {
     );
     final continueFromPrevDay = _checkContinueFromPrevDay(event, weekDayDate);
     final continueToNextDay = _checkContinueToNextDay(event, weekDayDate);
+    final graphWidth = _calculateWeekWidth(event, cellWidth);
     final top = _calculateTop(event, continueFromPrevDay);
     final bottom = _calculateBottom(event, continueToNextDay);
     return EventGraphSize(
-      left: _calculateWeekLeft(event, cellWidth, weekDayDate),
+      left: _calculateWeekLeft(event, cellWidth, graphWidth, weekDayDate),
       top: top,
-      width: _calculateWeekWidth(cellWidth),
+      width: graphWidth,
       height: bottom - top,
       continueFromPrevDay: continueFromPrevDay,
       continueToNextDay: continueToNextDay,
@@ -53,7 +51,7 @@ class EventGraphUtil {
     return EventGraphSize(
       left: _calculateDayLeft(event, cellWidth),
       top: top,
-      width: _calculateDayWidth(cellWidth),
+      width: _getAbsoluteWidth(cellWidth),
       height: bottom - top,
       continueFromPrevDay: continueFromPrevDay,
       continueToNextDay: continueToNextDay,
@@ -64,9 +62,9 @@ class EventGraphUtil {
     switch (event.type) {
       case EventType.a:
         return EventGraphColor(
-          background: AppColors.lightRed,
-          text: AppColors.darkRed,
-          border: AppColors.red,
+          background: AppColors.lightBlue,
+          text: AppColors.darkBlue,
+          border: AppColors.blue,
         );
       case EventType.b:
         return EventGraphColor(
@@ -76,9 +74,9 @@ class EventGraphUtil {
         );
       case EventType.c:
         return EventGraphColor(
-          background: AppColors.lightBlue,
-          text: AppColors.darkBlue,
-          border: AppColors.blue,
+          background: AppColors.lightRed,
+          text: AppColors.darkRed,
+          border: AppColors.red,
         );
       case EventType.d:
         return EventGraphColor(
@@ -131,9 +129,10 @@ class EventGraphUtil {
   double _calculateWeekLeft(
     Event event,
     double cellWidth,
+    double graphWidth,
     DateTime weekDayDate,
   ) {
-    final margin = _calculateLeftMargin(event, cellWidth);
+    final margin = _calculateLeftMargin(event, cellWidth, graphWidth);
     return (weekDayDate.weekday - 1) * cellWidth + margin;
   }
 
@@ -154,12 +153,14 @@ class EventGraphUtil {
     return rate * AppSizes.tableCellHeight;
   }
 
-  double _calculateWeekWidth(double cellWidth) {
-    return (cellWidth - rightPadding) / 2;
-  }
-
-  double _calculateDayWidth(double cellWidth) {
-    return cellWidth - rightPadding;
+  double _calculateWeekWidth(Event event, double cellWidth) {
+    if (event.constraints.relationCount == 0) {
+      return _getAbsoluteWidth(cellWidth);
+    }
+    if (event.constraints.relationCount == 2) {
+      return _getAbsoluteWidth(cellWidth) / 3;
+    }
+    return _getAbsoluteWidth(cellWidth) / 2;
   }
 
   double _calculateBottom(
@@ -175,24 +176,16 @@ class EventGraphUtil {
   double _calculateLeftMargin(
     Event event,
     double cellWidth,
+    double graphWidth,
   ) {
-    final half = (cellWidth - rightPadding) / 2;
-    final margin = half / 5;
-    switch (event.type) {
-      case EventType.a:
-        return 0;
-      case EventType.b:
-        return margin;
-      case EventType.c:
-        return 2 * margin;
-      case EventType.d:
-        return 3 * margin + AppSizes.spacing;
-      case EventType.e:
-        return 4 * margin + AppSizes.spacing;
-      case EventType.f:
-        return 5 * margin + AppSizes.spacing;
-      default:
-        return 0;
+    if (event.constraints.relationCount < 3) {
+      return event.constraints.horizontalIndex * graphWidth;
+    } else {
+      final half = _getAbsoluteWidth(cellWidth) / 2;
+      final margin = half / event.constraints.relationCount;
+      return event.constraints.horizontalIndex * margin;
     }
   }
+
+  double _getAbsoluteWidth(double cellWidth) => cellWidth - rightPadding;
 }

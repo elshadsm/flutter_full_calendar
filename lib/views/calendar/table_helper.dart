@@ -12,6 +12,7 @@ import '../../models/event_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
 import '../../util/date_util.dart';
+import '../../models/event.dart';
 import 'week_table_header_cell.dart';
 import 'calendar_table_cell.dart';
 import 'event_graph.dart';
@@ -134,22 +135,46 @@ class TableHelper {
     final allWeekDayEvents = eventsProvider.getAllWeekDayEvents(date);
     final List<EventGraph> graphics = [];
     for (var weekDayEvents in allWeekDayEvents) {
-      for (var event in weekDayEvents.events) {
-        final size = EventGraphUtil.instance.calculateSizeForWeekCalendar(
-          event: event,
-          date: date,
-          weekDay: weekDayEvents.weekDay,
-          cellWidth: cellWidth,
-        );
-        graphics.add(
-          EventGraph(
+      final group = _groupEvents(weekDayEvents.events);
+      final entries = group.entries.toList();
+      for (int i = 0; i < entries.length; i++) {
+        final currentGroupEvents = entries[i].value;
+        for (var event in currentGroupEvents) {
+          if (event.constraints.relationCount == 0) {
+            _findRelationships(event, i, 0, entries);
+          }
+          _addWeekTableGraphics(
             event: event,
-            size: size,
-          ),
-        );
+            date: date,
+            weekDay: weekDayEvents.weekDay,
+            cellWidth: cellWidth,
+            graphics: graphics,
+          );
+        }
       }
     }
     return graphics;
+  }
+
+  _addWeekTableGraphics({
+    required Event event,
+    required DateTime date,
+    required int weekDay,
+    required double cellWidth,
+    required List<EventGraph> graphics,
+  }) {
+    final size = EventGraphUtil.instance.calculateSizeForWeekCalendar(
+      event: event,
+      date: date,
+      weekDay: weekDay,
+      cellWidth: cellWidth,
+    );
+    graphics.add(
+      EventGraph(
+        event: event,
+        size: size,
+      ),
+    );
   }
 
   List<EventGraph> _createDayTableGraphics(
@@ -175,6 +200,62 @@ class TableHelper {
       );
     }
     return graphics;
+  }
+
+  Map<EventType, List<Event>> _groupEvents(List<Event> events) {
+    final Map<EventType, List<Event>> group = {};
+    for (var type in EventType.values) {
+      final List<Event> list = [];
+      for (var event in events) {
+        if (event.type == type) {
+          list.add(event);
+        }
+      }
+      group.putIfAbsent(type, () => list);
+    }
+    return group;
+  }
+
+  int _findRelationships(
+    Event event,
+    int groupIndex,
+    int relationCount,
+    List<MapEntry<EventType, List<Event>>> entries,
+  ) {
+    int count = relationCount;
+    _updateEventRelationCount(event, count);
+    _updateEventHorizontalIndex(event, count);
+    if (groupIndex >= entries.length - 1) {
+      return count;
+    }
+    final nextGroupEvents = entries[groupIndex + 1].value;
+    if (nextGroupEvents.isEmpty) {
+      return _findRelationships(
+        event,
+        groupIndex + 1,
+        relationCount,
+        entries,
+      );
+    }
+    for (var nextGroupEvent in nextGroupEvents) {
+      if (event.to.isBefore(nextGroupEvent.from)) {
+        break;
+      }
+      if (event.from.isAfter(nextGroupEvent.to)) {
+        continue;
+      }
+      final result = _findRelationships(
+        nextGroupEvent,
+        groupIndex + 1,
+        relationCount + 1,
+        entries,
+      );
+      if (result > count) {
+        count = result;
+        _updateEventRelationCount(event, count);
+      }
+    }
+    return count;
   }
 
   List<Widget> _createWeekHeaderCells(BuildContext context) {
@@ -211,4 +292,16 @@ class TableHelper {
           ),
         ),
       );
+
+  _updateEventRelationCount(Event event, int count) {
+    final relationCount = event.constraints.relationCount;
+    event.constraints.relationCount =
+        relationCount > count ? relationCount : count;
+  }
+
+  _updateEventHorizontalIndex(Event event, int index) {
+    final horizontalIndex = event.constraints.horizontalIndex;
+    event.constraints.horizontalIndex =
+        horizontalIndex > index ? horizontalIndex : index;
+  }
 }

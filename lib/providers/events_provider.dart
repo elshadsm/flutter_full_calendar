@@ -87,7 +87,7 @@ class EventsProvider extends ChangeNotifier {
       if (event.from.isAfter(endOfTheWeekDay)) {
         continue;
       }
-      weekDayEvents.events.add(event);
+      weekDayEvents.events.add(event.clone());
     }
   }
 }
