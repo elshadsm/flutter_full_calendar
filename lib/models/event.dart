@@ -1,4 +1,3 @@
-import 'event_constraints.dart';
 import 'event_type.dart';
 
 class Event {
@@ -7,9 +6,6 @@ class Event {
   final DateTime from;
   final DateTime to;
   final EventType type;
-  EventConstraints _constraints = EventConstraints();
-
-  EventConstraints get constraints => _constraints;
 
   Event({
     required this.id,
@@ -18,12 +14,4 @@ class Event {
     required this.to,
     required this.type,
   });
-
-  Event clone() => Event(
-        id: id,
-        title: title,
-        from: from,
-        to: to,
-        type: type,
-      ).._constraints = constraints.clone();
 }

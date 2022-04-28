@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../../util/event_graph_intersection_util.dart';
 import '../../providers/events_provider.dart';
 import '../../providers/date_provider.dart';
 import '../../util/event_graph_util.dart';
@@ -134,15 +135,13 @@ class TableHelper {
     final date = dateProvider.selectedDate;
     final allWeekDayEvents = eventsProvider.getAllWeekDayEvents(date);
     final List<EventGraph> graphics = [];
+    EventGraphIntersectionUtil.instance.clear();
     for (var weekDayEvents in allWeekDayEvents) {
-      final group = _groupEvents(weekDayEvents.events);
+      final group = _groupEvents(weekDayEvents.weekDay, weekDayEvents.events);
       final entries = group.entries.toList();
       for (int i = 0; i < entries.length; i++) {
         final currentGroupEvents = entries[i].value;
         for (var event in currentGroupEvents) {
-          if (event.constraints.relationCount == 0) {
-            _findRelationships(event, i, 0, entries);
-          }
           _addWeekTableGraphics(
             event: event,
             date: date,
@@ -202,11 +201,14 @@ class TableHelper {
     return graphics;
   }
 
-  Map<EventType, List<Event>> _groupEvents(List<Event> events) {
+  Map<EventType, List<Event>> _groupEvents(int weekDay, List<Event> events) {
     final Map<EventType, List<Event>> group = {};
     for (var type in EventType.values) {
       final List<Event> list = [];
       for (var event in events) {
+        if (type == EventType.a) {
+          EventGraphIntersectionUtil.instance.check(weekDay, event);
+        }
         if (event.type == type) {
           list.add(event);
         }
@@ -216,47 +218,76 @@ class TableHelper {
     return group;
   }
 
-  int _findRelationships(
-    Event event,
-    int groupIndex,
-    int relationCount,
-    List<MapEntry<EventType, List<Event>>> entries,
-  ) {
-    int count = relationCount;
-    _updateEventRelationCount(event, count);
-    _updateEventHorizontalIndex(event, count);
-    if (groupIndex >= entries.length - 1) {
-      return count;
-    }
-    final nextGroupEvents = entries[groupIndex + 1].value;
-    if (nextGroupEvents.isEmpty) {
-      return _findRelationships(
-        event,
-        groupIndex + 1,
-        relationCount,
-        entries,
-      );
-    }
-    for (var nextGroupEvent in nextGroupEvents) {
-      if (event.to.isBefore(nextGroupEvent.from)) {
-        break;
-      }
-      if (event.from.isAfter(nextGroupEvent.to)) {
-        continue;
-      }
-      final result = _findRelationships(
-        nextGroupEvent,
-        groupIndex + 1,
-        relationCount + 1,
-        entries,
-      );
-      if (result > count) {
-        count = result;
-        _updateEventRelationCount(event, count);
-      }
-    }
-    return count;
-  }
+  // SharedRelation _findRelationships(
+  //   Event event,
+  //   int groupIndex,
+  //   SharedRelation? childRelation,
+  //   List<MapEntry<EventType, List<Event>>> groups,
+  // ) {
+  //   _printProcess(event, '_groupEvents');
+  //   if (event.constraints.relationReference != null) {
+  //     _printProcess(event, 'reference is not null');
+  //     return event.constraints.relationReference!;
+  //   }
+  //   if (groupIndex >= groups.length - 1) {
+  //     if (childRelation != null) {
+  //       childRelation.binary = childRelation.binary | event.type.binary;
+  //       event.constraints.relationReference = childRelation;
+  //     } else {
+  //       event.constraints.relationReference = SharedRelation(event.type.binary);
+  //     }
+  //     _printProcess(event, 'groupIndex is last');
+  //     return event.constraints.relationReference!;
+  //   }
+  //   final nextGroupEvents = groups[groupIndex + 1].value;
+  //   if (nextGroupEvents.isEmpty) {
+  //     _printProcess(event, 'next group events is empty');
+  //     return _findRelationships(
+  //       event,
+  //       groupIndex + 1,
+  //       childRelation,
+  //       groups,
+  //     );
+  //   }
+  //   for (var i = 0; i < nextGroupEvents.length; i++) {
+  //     final nextGroupEvent = nextGroupEvents[i];
+  //     if (event.to.isBefore(nextGroupEvent.from)) {
+  //       _printProcess(event, '*** to is before from ***');
+  //       return _findRelationships(
+  //         event,
+  //         groupIndex + 1,
+  //         childRelation,
+  //         groups,
+  //       );
+  //     }
+  //     if (event.from.isAfter(nextGroupEvent.to)) {
+  //       _printProcess(event, '*** from is after to ***');
+  //       print('- FROM: ${event.from}');
+  //       print('- TO: ${nextGroupEvent.to}');
+  //       if (i == nextGroupEvents.length - 1) {
+  //         return _findRelationships(
+  //           event,
+  //           groupIndex + 1,
+  //           childRelation,
+  //           groups,
+  //         );
+  //       } else {
+  //         continue;
+  //       }
+  //     }
+  //     _printProcess(event, 'matcheddddddd');
+  //     print('*** Parent is: ${nextGroupEvent.title}');
+  //     final result = _findRelationships(
+  //       nextGroupEvent,
+  //       groupIndex + 1,
+  //       event.constraints.relationReference,
+  //       groups,
+  //     );
+  //     _checkFindRelationshipsResult(event, result);
+  //   }
+  //   print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+  //   return event.constraints.relationReference!;
+  // }
 
   List<Widget> _createWeekHeaderCells(BuildContext context) {
     final provider = Provider.of<DateProvider>(context, listen: false);
@@ -293,15 +324,38 @@ class TableHelper {
         ),
       );
 
-  _updateEventRelationCount(Event event, int count) {
-    final relationCount = event.constraints.relationCount;
-    event.constraints.relationCount =
-        relationCount > count ? relationCount : count;
-  }
+// _checkFindRelationshipsResult(
+//   Event event,
+//   SharedRelation result,
+// ) {
+//   _printProcess(event, 'handle result');
+//   final reference = event.constraints.relationReference;
+//   if (reference == null) {
+//     print('===================  is nullllll =======================');
+//     result.binary = result.binary | event.type.binary;
+//     event.constraints.relationReference = result;
+//     print('===================  is nullllll =======================');
+//   } else {
+//     print('*********************************************');
+//     print('reference.binary: ${reference.binary}');
+//     print('result.binary: ${result.binary}');
+//     reference.binary = reference.binary | result.binary;
+//     print('result: ${reference.binary}');
+//     print('*********************************************');
+//   }
+// }
 
-  _updateEventHorizontalIndex(Event event, int index) {
-    final horizontalIndex = event.constraints.horizontalIndex;
-    event.constraints.horizontalIndex =
-        horizontalIndex > index ? horizontalIndex : index;
-  }
+// _printProcess(Event event, String process) {
+//   print('-------------------- $process --------------------');
+//   print('title: ${event.title} type: ${event.type.value}');
+//   print('horizontalIndex: ${event.constraints.horizontalIndex}');
+//   print('reference: ${event.constraints.relationReference}');
+//   print(
+//     'binary: ${event.constraints.relationReference?.binary.toRadixString(2)}',
+//   );
+//   print(
+//     'value: ${event.constraints.relationReference?.value}',
+//   );
+//   print('-------------------- $process --------------------');
+// }
 }

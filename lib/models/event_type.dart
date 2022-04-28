@@ -24,4 +24,21 @@ extension EventTypeExtension on EventType {
         return 'F';
     }
   }
+
+  int get binary {
+    switch (this) {
+      case EventType.a:
+        return 32;
+      case EventType.b:
+        return 16;
+      case EventType.c:
+        return 8;
+      case EventType.d:
+        return 4;
+      case EventType.e:
+        return 2;
+      default:
+        return 1;
+    }
+  }
 }
