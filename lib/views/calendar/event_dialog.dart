@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../models/event_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
 import '../../models/event.dart';
@@ -23,12 +24,7 @@ class EventDialog extends StatelessWidget {
         children: [
           Container(
             width: 400,
-            padding: const EdgeInsets.only(
-              left: AppSizes.spacingL,
-              top: AppSizes.spacing + AppSizes.icon,
-              right: AppSizes.spacingL,
-              bottom: AppSizes.spacingL,
-            ),
+            padding: const EdgeInsets.all(AppSizes.spacingXl),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,15 +39,24 @@ class EventDialog extends StatelessWidget {
                     const SizedBox(width: AppSizes.spacingL),
                     Expanded(
                       child: Text(
-                        event.title,
+                        'Room ${event.type.value}',
                         textAlign: TextAlign.left,
-                        style: Theme.of(context).textTheme.headline6!.copyWith(
+                        style: Theme.of(context).textTheme.subtitle2!.copyWith(
                               fontWeight: FontWeight.w500,
-                              color: AppColors.primaryText,
+                              color: color,
                             ),
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: AppSizes.spacingL),
+                Text(
+                  event.title,
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.headline6!.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryText,
+                      ),
                 ),
                 const SizedBox(height: AppSizes.spacingL),
                 EventDialogDateText(
