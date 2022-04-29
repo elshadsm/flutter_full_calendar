@@ -47,13 +47,13 @@ class EventsUtil {
     var random = Random();
     var number = 0;
     var oldNumber = 0;
-    while (number < DateUtil.hoursPerDay - 4) {
-      oldNumber = number;
-      number = number + random.nextInt(4) + 1;
+    while (number < DateUtil.hoursPerDay - 8) {
+      oldNumber = number + random.nextInt(5);
+      number = oldNumber + random.nextInt(5) + 1;
       events.add(
         Event(
           id: 'id',
-          title: 'Event $number',
+          title: 'Event ${type.index}$number',
           from: date.add(
             Duration(
               hours: oldNumber,

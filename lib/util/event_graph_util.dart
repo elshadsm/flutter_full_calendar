@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 
+import '../../util/event_graph_intersection_util.dart';
 import '../models/event_graph_color.dart';
 import '../models/event_graph_size.dart';
 import '../models/event_type.dart';
@@ -26,11 +27,12 @@ class EventGraphUtil {
     );
     final continueFromPrevDay = _checkContinueFromPrevDay(event, weekDayDate);
     final continueToNextDay = _checkContinueToNextDay(event, weekDayDate);
-    final graphWidth = _calculateWeekWidth(event, cellWidth);
+    final graphWidth = _calculateWeekWidth(event, weekDay, cellWidth);
     final top = _calculateTop(event, continueFromPrevDay);
     final bottom = _calculateBottom(event, continueToNextDay);
     return EventGraphSize(
-      left: _calculateWeekLeft(event, cellWidth, graphWidth, weekDayDate),
+      left: _calculateWeekLeft(
+          event, weekDay, cellWidth, graphWidth, weekDayDate),
       top: top,
       width: graphWidth,
       height: bottom - top,
@@ -128,11 +130,12 @@ class EventGraphUtil {
 
   double _calculateWeekLeft(
     Event event,
+    int weekDay,
     double cellWidth,
     double graphWidth,
     DateTime weekDayDate,
   ) {
-    final margin = _calculateLeftMargin(event, cellWidth, graphWidth);
+    final margin = _calculateLeftMargin(event, weekDay, cellWidth, graphWidth);
     return (weekDayDate.weekday - 1) * cellWidth + margin;
   }
 
@@ -153,11 +156,15 @@ class EventGraphUtil {
     return rate * AppSizes.tableCellHeight;
   }
 
-  double _calculateWeekWidth(Event event, double cellWidth) {
-    if (event.constraints.relationCount == 0) {
+  double _calculateWeekWidth(Event event, int weekDay, double cellWidth) {
+    final relation = EventGraphIntersectionUtil.instance.getRelation(
+      weekDay,
+      event,
+    );
+    final value = relation.value;
+    if (value == 0) {
       return _getAbsoluteWidth(cellWidth);
-    }
-    if (event.constraints.relationCount == 2) {
+    } else if (value == 2) {
       return _getAbsoluteWidth(cellWidth) / 3;
     }
     return _getAbsoluteWidth(cellWidth) / 2;
@@ -175,15 +182,26 @@ class EventGraphUtil {
 
   double _calculateLeftMargin(
     Event event,
+    int weekDay,
     double cellWidth,
     double graphWidth,
   ) {
-    if (event.constraints.relationCount < 3) {
-      return event.constraints.horizontalIndex * graphWidth;
+    final relation = EventGraphIntersectionUtil.instance.getRelation(
+      weekDay,
+      event,
+    );
+    final value = relation.value;
+    final horizontalIndex =
+        EventGraphIntersectionUtil.instance.binaryToHorizontalIndex(
+      relation.binary,
+      event.type,
+    );
+    if (value < 3) {
+      return horizontalIndex * graphWidth;
     } else {
       final half = _getAbsoluteWidth(cellWidth) / 2;
-      final margin = half / event.constraints.relationCount;
-      return event.constraints.horizontalIndex * margin;
+      final margin = half / value;
+      return horizontalIndex * margin;
     }
   }
 

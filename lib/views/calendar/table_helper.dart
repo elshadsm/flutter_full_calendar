@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
+import '../../util/event_graph_intersection_util.dart';
 import '../../providers/events_provider.dart';
 import '../../providers/date_provider.dart';
 import '../../util/event_graph_util.dart';
@@ -134,15 +135,13 @@ class TableHelper {
     final date = dateProvider.selectedDate;
     final allWeekDayEvents = eventsProvider.getAllWeekDayEvents(date);
     final List<EventGraph> graphics = [];
+    EventGraphIntersectionUtil.instance.clear();
     for (var weekDayEvents in allWeekDayEvents) {
-      final group = _groupEvents(weekDayEvents.events);
+      final group = _groupEvents(weekDayEvents.weekDay, weekDayEvents.events);
       final entries = group.entries.toList();
       for (int i = 0; i < entries.length; i++) {
         final currentGroupEvents = entries[i].value;
         for (var event in currentGroupEvents) {
-          if (event.constraints.relationCount == 0) {
-            _findRelationships(event, i, 0, entries);
-          }
           _addWeekTableGraphics(
             event: event,
             date: date,
@@ -202,11 +201,14 @@ class TableHelper {
     return graphics;
   }
 
-  Map<EventType, List<Event>> _groupEvents(List<Event> events) {
+  Map<EventType, List<Event>> _groupEvents(int weekDay, List<Event> events) {
     final Map<EventType, List<Event>> group = {};
     for (var type in EventType.values) {
       final List<Event> list = [];
       for (var event in events) {
+        if (type == EventType.a) {
+          EventGraphIntersectionUtil.instance.check(weekDay, event);
+        }
         if (event.type == type) {
           list.add(event);
         }
@@ -214,48 +216,6 @@ class TableHelper {
       group.putIfAbsent(type, () => list);
     }
     return group;
-  }
-
-  int _findRelationships(
-    Event event,
-    int groupIndex,
-    int relationCount,
-    List<MapEntry<EventType, List<Event>>> entries,
-  ) {
-    int count = relationCount;
-    _updateEventRelationCount(event, count);
-    _updateEventHorizontalIndex(event, count);
-    if (groupIndex >= entries.length - 1) {
-      return count;
-    }
-    final nextGroupEvents = entries[groupIndex + 1].value;
-    if (nextGroupEvents.isEmpty) {
-      return _findRelationships(
-        event,
-        groupIndex + 1,
-        relationCount,
-        entries,
-      );
-    }
-    for (var nextGroupEvent in nextGroupEvents) {
-      if (event.to.isBefore(nextGroupEvent.from)) {
-        break;
-      }
-      if (event.from.isAfter(nextGroupEvent.to)) {
-        continue;
-      }
-      final result = _findRelationships(
-        nextGroupEvent,
-        groupIndex + 1,
-        relationCount + 1,
-        entries,
-      );
-      if (result > count) {
-        count = result;
-        _updateEventRelationCount(event, count);
-      }
-    }
-    return count;
   }
 
   List<Widget> _createWeekHeaderCells(BuildContext context) {
@@ -292,16 +252,4 @@ class TableHelper {
           ),
         ),
       );
-
-  _updateEventRelationCount(Event event, int count) {
-    final relationCount = event.constraints.relationCount;
-    event.constraints.relationCount =
-        relationCount > count ? relationCount : count;
-  }
-
-  _updateEventHorizontalIndex(Event event, int index) {
-    final horizontalIndex = event.constraints.horizontalIndex;
-    event.constraints.horizontalIndex =
-        horizontalIndex > index ? horizontalIndex : index;
-  }
 }

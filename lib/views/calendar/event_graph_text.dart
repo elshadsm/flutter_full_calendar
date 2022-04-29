@@ -21,6 +21,7 @@ class EventGraphText extends StatelessWidget {
       child: RichText(
         textAlign: TextAlign.left,
         overflow: TextOverflow.ellipsis,
+        softWrap: true,
         text: TextSpan(
           text: '${event.title}\n',
           style: textTheme.caption!.copyWith(
