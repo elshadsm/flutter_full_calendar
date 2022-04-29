@@ -31,7 +31,8 @@ class EventGraphUtil {
     final top = _calculateTop(event, continueFromPrevDay);
     final bottom = _calculateBottom(event, continueToNextDay);
     return EventGraphSize(
-      left: _calculateWeekLeft(event, weekDay, cellWidth, graphWidth, weekDayDate),
+      left: _calculateWeekLeft(
+          event, weekDay, cellWidth, graphWidth, weekDayDate),
       top: top,
       width: graphWidth,
       height: bottom - top,
@@ -111,8 +112,6 @@ class EventGraphUtil {
     return '${dateFormat.format(event.from)} - ${dateFormat.format(event.to)}';
   }
 
-
-
   bool _checkContinueFromPrevDay(
     Event event,
     DateTime date,
@@ -158,7 +157,11 @@ class EventGraphUtil {
   }
 
   double _calculateWeekWidth(Event event, int weekDay, double cellWidth) {
-    final value = EventGraphIntersectionUtil.instance.getRelation(weekDay, event).value;
+    final relation = EventGraphIntersectionUtil.instance.getRelation(
+      weekDay,
+      event,
+    );
+    final value = relation.value;
     if (value == 0) {
       return _getAbsoluteWidth(cellWidth);
     } else if (value == 2) {
@@ -183,7 +186,10 @@ class EventGraphUtil {
     double cellWidth,
     double graphWidth,
   ) {
-    final relation = EventGraphIntersectionUtil.instance.getRelation(weekDay, event);
+    final relation = EventGraphIntersectionUtil.instance.getRelation(
+      weekDay,
+      event,
+    );
     final value = relation.value;
     final horizontalIndex =
         EventGraphIntersectionUtil.instance.binaryToHorizontalIndex(

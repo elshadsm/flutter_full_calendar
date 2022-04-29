@@ -218,77 +218,6 @@ class TableHelper {
     return group;
   }
 
-  // SharedRelation _findRelationships(
-  //   Event event,
-  //   int groupIndex,
-  //   SharedRelation? childRelation,
-  //   List<MapEntry<EventType, List<Event>>> groups,
-  // ) {
-  //   _printProcess(event, '_groupEvents');
-  //   if (event.constraints.relationReference != null) {
-  //     _printProcess(event, 'reference is not null');
-  //     return event.constraints.relationReference!;
-  //   }
-  //   if (groupIndex >= groups.length - 1) {
-  //     if (childRelation != null) {
-  //       childRelation.binary = childRelation.binary | event.type.binary;
-  //       event.constraints.relationReference = childRelation;
-  //     } else {
-  //       event.constraints.relationReference = SharedRelation(event.type.binary);
-  //     }
-  //     _printProcess(event, 'groupIndex is last');
-  //     return event.constraints.relationReference!;
-  //   }
-  //   final nextGroupEvents = groups[groupIndex + 1].value;
-  //   if (nextGroupEvents.isEmpty) {
-  //     _printProcess(event, 'next group events is empty');
-  //     return _findRelationships(
-  //       event,
-  //       groupIndex + 1,
-  //       childRelation,
-  //       groups,
-  //     );
-  //   }
-  //   for (var i = 0; i < nextGroupEvents.length; i++) {
-  //     final nextGroupEvent = nextGroupEvents[i];
-  //     if (event.to.isBefore(nextGroupEvent.from)) {
-  //       _printProcess(event, '*** to is before from ***');
-  //       return _findRelationships(
-  //         event,
-  //         groupIndex + 1,
-  //         childRelation,
-  //         groups,
-  //       );
-  //     }
-  //     if (event.from.isAfter(nextGroupEvent.to)) {
-  //       _printProcess(event, '*** from is after to ***');
-  //       print('- FROM: ${event.from}');
-  //       print('- TO: ${nextGroupEvent.to}');
-  //       if (i == nextGroupEvents.length - 1) {
-  //         return _findRelationships(
-  //           event,
-  //           groupIndex + 1,
-  //           childRelation,
-  //           groups,
-  //         );
-  //       } else {
-  //         continue;
-  //       }
-  //     }
-  //     _printProcess(event, 'matcheddddddd');
-  //     print('*** Parent is: ${nextGroupEvent.title}');
-  //     final result = _findRelationships(
-  //       nextGroupEvent,
-  //       groupIndex + 1,
-  //       event.constraints.relationReference,
-  //       groups,
-  //     );
-  //     _checkFindRelationshipsResult(event, result);
-  //   }
-  //   print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-  //   return event.constraints.relationReference!;
-  // }
-
   List<Widget> _createWeekHeaderCells(BuildContext context) {
     final provider = Provider.of<DateProvider>(context, listen: false);
     List<Widget> cells = [];
@@ -323,39 +252,4 @@ class TableHelper {
           ),
         ),
       );
-
-// _checkFindRelationshipsResult(
-//   Event event,
-//   SharedRelation result,
-// ) {
-//   _printProcess(event, 'handle result');
-//   final reference = event.constraints.relationReference;
-//   if (reference == null) {
-//     print('===================  is nullllll =======================');
-//     result.binary = result.binary | event.type.binary;
-//     event.constraints.relationReference = result;
-//     print('===================  is nullllll =======================');
-//   } else {
-//     print('*********************************************');
-//     print('reference.binary: ${reference.binary}');
-//     print('result.binary: ${result.binary}');
-//     reference.binary = reference.binary | result.binary;
-//     print('result: ${reference.binary}');
-//     print('*********************************************');
-//   }
-// }
-
-// _printProcess(Event event, String process) {
-//   print('-------------------- $process --------------------');
-//   print('title: ${event.title} type: ${event.type.value}');
-//   print('horizontalIndex: ${event.constraints.horizontalIndex}');
-//   print('reference: ${event.constraints.relationReference}');
-//   print(
-//     'binary: ${event.constraints.relationReference?.binary.toRadixString(2)}',
-//   );
-//   print(
-//     'value: ${event.constraints.relationReference?.value}',
-//   );
-//   print('-------------------- $process --------------------');
-// }
 }

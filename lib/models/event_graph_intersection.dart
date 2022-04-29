@@ -21,6 +21,4 @@ class SharedRelation {
   SharedRelation([
     this.binary = 0,
   ]);
-
-  SharedRelation clone() => SharedRelation(binary);
 }
