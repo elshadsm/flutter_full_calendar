@@ -41,7 +41,7 @@ class TableHelper {
   }
 
   UniqueKey getTableKey(CalendarType type) =>
-      type == CalendarType.week ? _weekKey : _dayKey;
+      CalendarUtil.isWeekCalendarType(type) ? _weekKey : _dayKey;
 
   Map<int, TableColumnWidth> createColumnWidths(BuildContext context) {
     final cellCount = getCellCount(context);
@@ -137,6 +137,23 @@ class TableHelper {
     }
   }
 
+  Map<EventType, List<Event>> _groupEvents(int weekDay, List<Event> events) {
+    final Map<EventType, List<Event>> group = {};
+    for (var type in EventType.values) {
+      final List<Event> list = [];
+      for (var event in events) {
+        if (type == EventType.a) {
+          EventGraphIntersectionUtil.instance.check(weekDay, event);
+        }
+        if (event.type == type) {
+          list.add(event);
+        }
+      }
+      group.putIfAbsent(type, () => list);
+    }
+    return group;
+  }
+
   List<EventGraph> _createDayTableGraphics(
     BuildContext context,
     double cellWidth,
@@ -160,23 +177,6 @@ class TableHelper {
       );
     }
     return graphics;
-  }
-
-  Map<EventType, List<Event>> _groupEvents(int weekDay, List<Event> events) {
-    final Map<EventType, List<Event>> group = {};
-    for (var type in EventType.values) {
-      final List<Event> list = [];
-      for (var event in events) {
-        if (type == EventType.a) {
-          EventGraphIntersectionUtil.instance.check(weekDay, event);
-        }
-        if (event.type == type) {
-          list.add(event);
-        }
-      }
-      group.putIfAbsent(type, () => list);
-    }
-    return group;
   }
 
   List<Widget> _createWeekHeaderCells(BuildContext context) {
