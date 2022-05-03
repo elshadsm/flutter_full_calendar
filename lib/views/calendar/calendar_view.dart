@@ -88,8 +88,11 @@ class _CalendarViewState extends State<CalendarView> {
   }
 
   _initScrollController() {
-    _scrollController = ScrollController()
-      ..addListener(() {
+    final now = DateTime.now();
+    _scrolled = now.hour > 0;
+    _scrollController = ScrollController(
+      initialScrollOffset: now.hour * AppSizes.tableCellHeight,
+    )..addListener(() {
         final scrolled = _scrollController.offset > 0;
         if (_scrolled != scrolled) {
           setState(() => _scrolled = scrolled);

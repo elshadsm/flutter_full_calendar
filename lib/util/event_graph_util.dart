@@ -164,10 +164,10 @@ class EventGraphUtil {
     final value = relation.value;
     if (value == 0) {
       return _getAbsoluteWidth(cellWidth);
-    } else if (value == 2) {
-      return _getAbsoluteWidth(cellWidth) / 3;
+    } else if (value == 1) {
+      return _getAbsoluteWidth(cellWidth) / 2;
     }
-    return _getAbsoluteWidth(cellWidth) / 2;
+    return _getAbsoluteWidth(cellWidth) / 3;
   }
 
   double _calculateBottom(
@@ -199,8 +199,8 @@ class EventGraphUtil {
     if (value < 3) {
       return horizontalIndex * graphWidth;
     } else {
-      final half = _getAbsoluteWidth(cellWidth) / 2;
-      final margin = half / value;
+      final width = _getAbsoluteWidth(cellWidth);
+      final margin = (width - graphWidth) / value;
       return horizontalIndex * margin;
     }
   }

@@ -8,6 +8,7 @@ import 'date_util.dart';
 
 class EventsUtil {
   EventsUtil._privateConstructor() {
+    events.addAll(_createMondayEvents());
     _generateRandomEvents();
   }
 
@@ -17,7 +18,7 @@ class EventsUtil {
 
   void _generateRandomEvents() {
     final startOfWeek = Jiffy().startOf(Units.WEEK).dateTime;
-    for (int i = 0; i < 21; i++) {
+    for (int i = 1; i < 21; i++) {
       final date = startOfWeek.add(
         Duration(days: i + 1),
       );
@@ -71,4 +72,42 @@ class EventsUtil {
     }
     return events;
   }
+
+  List<Event> _createMondayEvents() {
+    List<Event> list = [];
+    final startOfWeek = DateUtil.getStartOfTheWeek(DateTime.now()).add(
+      const Duration(
+        hours: 12,
+      ),
+    );
+    for (int i = 0; i < 6; i++) {
+      for (int j = 0; j <= i; j++) {
+        list.add(
+          _createMondayEvent(
+            EventType.values[j],
+            startOfWeek.add(Duration(hours: i)),
+          ),
+        );
+      }
+    }
+    return list;
+  }
+
+  Event _createMondayEvent(EventType type, DateTime date) => Event(
+        id: 'id',
+        title: 'Monday event ${date.hour}${date.minute}',
+        from: date,
+        to: date
+            .add(
+              const Duration(
+                hours: 1,
+              ),
+            )
+            .subtract(
+              const Duration(
+                minutes: 5,
+              ),
+            ),
+        type: type,
+      );
 }
