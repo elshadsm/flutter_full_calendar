@@ -5,16 +5,16 @@ import 'package:intl/intl.dart';
 import '../../util/event_graph_intersection_util.dart';
 import '../../providers/events_provider.dart';
 import '../../providers/date_provider.dart';
+import '../../models/week_day_events.dart';
 import '../../util/event_graph_util.dart';
 import '../../models/calendar_type.dart';
 import '../../resources/constants.dart';
 import '../../util/calendar_util.dart';
 import '../../models/event_type.dart';
-import '../../resources/colors.dart';
-import '../../resources/sizes.dart';
 import '../../util/date_util.dart';
 import '../../models/event.dart';
 import 'week_table_header_cell.dart';
+import 'day_table_header_cell.dart';
 import 'calendar_table_cell.dart';
 import 'event_graph.dart';
 
@@ -25,6 +25,10 @@ class TableHelper {
 
   final _weekKey = UniqueKey();
   final _dayKey = UniqueKey();
+
+  int getCellCount(BuildContext context) => CalendarUtil.isWeekCalendar(context)
+      ? DateTime.daysPerWeek
+      : Constants.groupCount;
 
   String getNavigationTitle(
     BuildContext context,
@@ -39,15 +43,21 @@ class TableHelper {
   UniqueKey getTableKey(CalendarType type) =>
       type == CalendarType.week ? _weekKey : _dayKey;
 
-  Map<int, TableColumnWidth> createColumnWidths(BuildContext context) =>
-      CalendarUtil.isWeekCalendar(context)
-          ? _createWeekTableColumnWidths()
-          : _createDayTableColumnWidths();
+  Map<int, TableColumnWidth> createColumnWidths(BuildContext context) {
+    final cellCount = getCellCount(context);
+    return Map<int, TableColumnWidth>.fromIterable(
+      Iterable<int>.generate(cellCount),
+      value: (_) => const FlexColumnWidth(),
+    );
+  }
 
-  List<TableRow> createRows(BuildContext context, GlobalKey key) =>
-      CalendarUtil.isWeekCalendar(context)
-          ? _createWeekTableRows(key)
-          : _createDayTableRows(key);
+  List<TableRow> createRows(BuildContext context, GlobalKey key) {
+    final cellCount = getCellCount(context);
+    return List<TableRow>.generate(
+      DateUtil.hoursPerDay,
+      (i) => _createTableRow(key, i == 0, cellCount),
+    );
+  }
 
   List<EventGraph> createGraphics(BuildContext context, double cellWidth) =>
       CalendarUtil.isWeekCalendar(context)
@@ -65,65 +75,18 @@ class TableHelper {
           ? _createWeekHeaderCells(context)
           : _createDayHeaderCells(context);
 
-  int getHeaderCellCount(BuildContext context) =>
-      CalendarUtil.isWeekCalendar(context)
-          ? DateTime.daysPerWeek
-          : Constants.groupCount;
-
-  Map<int, TableColumnWidth> _createWeekTableColumnWidths() => const {
-        0: FlexColumnWidth(),
-        1: FlexColumnWidth(),
-        2: FlexColumnWidth(),
-        3: FlexColumnWidth(),
-        4: FlexColumnWidth(),
-        5: FlexColumnWidth(),
-        6: FlexColumnWidth(),
-      };
-
-  Map<int, TableColumnWidth> _createDayTableColumnWidths() => const {
-        0: FlexColumnWidth(),
-        1: FlexColumnWidth(),
-        2: FlexColumnWidth(),
-        3: FlexColumnWidth(),
-        4: FlexColumnWidth(),
-        5: FlexColumnWidth(),
-      };
-
-  List<TableRow> _createWeekTableRows(GlobalKey key) => List<TableRow>.generate(
-        DateUtil.hoursPerDay,
-        (i) => _createWeekTableRow(key, i),
-      );
-
-  List<TableRow> _createDayTableRows(GlobalKey key) => List<TableRow>.generate(
-        DateUtil.hoursPerDay,
-        (i) => _createDayTableRow(key, i),
-      );
-
-  TableRow _createWeekTableRow(GlobalKey key, int i) => TableRow(
-        children: [
-          CalendarTableCell(
-            key: i == 0 ? key : null,
+  TableRow _createTableRow(
+    GlobalKey key,
+    bool isFirstRow,
+    int cellCount,
+  ) =>
+      TableRow(
+        children: List<CalendarTableCell>.generate(
+          cellCount,
+          (i) => CalendarTableCell(
+            key: isFirstRow && i == 0 ? key : null,
           ),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-        ],
-      );
-
-  TableRow _createDayTableRow(GlobalKey key, int i) => TableRow(
-        children: [
-          CalendarTableCell(
-            key: i == 0 ? key : null,
-          ),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-          const CalendarTableCell(),
-        ],
+        ),
       );
 
   List<EventGraph> _createWeekTableGraphics(
@@ -132,48 +95,46 @@ class TableHelper {
   ) {
     final eventsProvider = Provider.of<EventsProvider>(context, listen: false);
     final dateProvider = Provider.of<DateProvider>(context, listen: false);
-    final date = dateProvider.selectedDate;
-    final allWeekDayEvents = eventsProvider.getAllWeekDayEvents(date);
+    final selectedDate = dateProvider.selectedDate;
+    final allWeekDayEvents = eventsProvider.getAllWeekDayEvents(selectedDate);
     final List<EventGraph> graphics = [];
     EventGraphIntersectionUtil.instance.clear();
     for (var weekDayEvents in allWeekDayEvents) {
-      final group = _groupEvents(weekDayEvents.weekDay, weekDayEvents.events);
-      final entries = group.entries.toList();
-      for (int i = 0; i < entries.length; i++) {
-        final currentGroupEvents = entries[i].value;
-        for (var event in currentGroupEvents) {
-          _addWeekTableGraphics(
-            event: event,
-            date: date,
-            weekDay: weekDayEvents.weekDay,
-            cellWidth: cellWidth,
-            graphics: graphics,
-          );
-        }
-      }
+      _addWeekDayEventsGraphics(
+        weekDayEvents: weekDayEvents,
+        date: selectedDate,
+        cellWidth: cellWidth,
+        graphics: graphics,
+      );
     }
     return graphics;
   }
 
-  _addWeekTableGraphics({
-    required Event event,
+  _addWeekDayEventsGraphics({
+    required WeekDayEvents weekDayEvents,
     required DateTime date,
-    required int weekDay,
     required double cellWidth,
     required List<EventGraph> graphics,
   }) {
-    final size = EventGraphUtil.instance.calculateSizeForWeekCalendar(
-      event: event,
-      date: date,
-      weekDay: weekDay,
-      cellWidth: cellWidth,
-    );
-    graphics.add(
-      EventGraph(
-        event: event,
-        size: size,
-      ),
-    );
+    final group = _groupEvents(weekDayEvents.weekDay, weekDayEvents.events);
+    final entries = group.entries.toList();
+    for (int i = 0; i < entries.length; i++) {
+      final groupEvents = entries[i].value;
+      for (var event in groupEvents) {
+        final size = EventGraphUtil.instance.calculateSizeForWeekCalendar(
+          event: event,
+          date: date,
+          weekDay: weekDayEvents.weekDay,
+          cellWidth: cellWidth,
+        );
+        graphics.add(
+          EventGraph(
+            event: event,
+            size: size,
+          ),
+        );
+      }
+    }
   }
 
   List<EventGraph> _createDayTableGraphics(
@@ -182,13 +143,13 @@ class TableHelper {
   ) {
     final eventsProvider = Provider.of<EventsProvider>(context, listen: false);
     final dateProvider = Provider.of<DateProvider>(context, listen: false);
-    final date = dateProvider.selectedDate;
-    final events = eventsProvider.getDayEvents(date);
+    final selectedDate = dateProvider.selectedDate;
+    final events = eventsProvider.getDayEvents(selectedDate);
     final List<EventGraph> graphics = [];
     for (var event in events) {
       final size = EventGraphUtil.instance.calculateSizeForDayCalendar(
         event: event,
-        date: date,
+        date: selectedDate,
         cellWidth: cellWidth,
       );
       graphics.add(
@@ -228,7 +189,9 @@ class TableHelper {
         Duration(days: i),
       );
       cells.add(
-        WeekTableHeaderCell(weekDayDate: weekDayDate),
+        WeekTableHeaderCell(
+          weekDayDate: weekDayDate,
+        ),
       );
     }
     return cells;
@@ -237,19 +200,8 @@ class TableHelper {
   List<Widget> _createDayHeaderCells(BuildContext context) =>
       List<Widget>.generate(
         Constants.groupCount,
-        (i) => Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSizes.spacingL),
-            child: Center(
-              child: Text(
-                'Room ${EventType.values[i].value}',
-                style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                      color: AppColors.primaryText,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ),
-          ),
+        (i) => DayTableHeaderCell(
+          eventType: EventType.values[i],
         ),
       );
 }

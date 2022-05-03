@@ -34,7 +34,7 @@ class CalendarTableHeader extends StatelessWidget {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: HorizontalTableSeparators(
-                cellCount: TableHelper.instance.getHeaderCellCount(
+                cellCount: TableHelper.instance.getCellCount(
                   context,
                 ),
                 cellHeight: AppSizes.tableHeaderSeparator,
