@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 
-import '../../util/event_graph_intersection_util.dart';
 import '../models/event_graph_color.dart';
 import '../models/event_graph_size.dart';
 import '../models/event_type.dart';
@@ -8,8 +7,9 @@ import '../resources/colors.dart';
 import '../resources/sizes.dart';
 import '../util/date_util.dart';
 import '../models/event.dart';
+import 'event_graph_intersection_util.dart';
 
-const rightPadding = AppSizes.spacing;
+const cellRightPadding = AppSizes.spacing;
 
 class EventGraphUtil {
   EventGraphUtil._privateConstructor();
@@ -28,11 +28,17 @@ class EventGraphUtil {
     final continueFromPrevDay = _checkContinueFromPrevDay(event, weekDayDate);
     final continueToNextDay = _checkContinueToNextDay(event, weekDayDate);
     final graphWidth = _calculateWeekWidth(event, weekDay, cellWidth);
+    final left = _calculateWeekLeft(
+      event,
+      weekDay,
+      cellWidth,
+      graphWidth,
+      weekDayDate,
+    );
     final top = _calculateTop(event, continueFromPrevDay);
     final bottom = _calculateBottom(event, continueToNextDay);
     return EventGraphSize(
-      left: _calculateWeekLeft(
-          event, weekDay, cellWidth, graphWidth, weekDayDate),
+      left: left,
       top: top,
       width: graphWidth,
       height: bottom - top,
@@ -48,10 +54,11 @@ class EventGraphUtil {
   }) {
     final continueFromPrevDay = _checkContinueFromPrevDay(event, date);
     final continueToNextDay = _checkContinueToNextDay(event, date);
+    final left = _calculateDayLeft(event, cellWidth);
     final top = _calculateTop(event, continueFromPrevDay);
     final bottom = _calculateBottom(event, continueToNextDay);
     return EventGraphSize(
-      left: _calculateDayLeft(event, cellWidth),
+      left: left,
       top: top,
       width: _getAbsoluteWidth(cellWidth),
       height: bottom - top,
@@ -205,5 +212,5 @@ class EventGraphUtil {
     }
   }
 
-  double _getAbsoluteWidth(double cellWidth) => cellWidth - rightPadding;
+  double _getAbsoluteWidth(double cellWidth) => cellWidth - cellRightPadding;
 }
