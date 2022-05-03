@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../widgets/horizontal_table_separators.dart';
 import '../../providers/date_provider.dart';
-import '../../models/calendar_type.dart';
 import '../../resources/sizes.dart';
 import 'table_helper.dart';
 
@@ -34,9 +33,7 @@ class CalendarTableHeader extends StatelessWidget {
             child: Align(
               alignment: Alignment.bottomCenter,
               child: HorizontalTableSeparators(
-                cellCount: TableHelper.instance.getCellCount(
-                  context,
-                ),
+                cellCount: TableHelper.instance.getCellCount(context),
                 cellHeight: AppSizes.tableHeaderSeparator,
                 showBottomBorder: showBottomBorder,
               ),

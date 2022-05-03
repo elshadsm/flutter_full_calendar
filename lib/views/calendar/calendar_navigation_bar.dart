@@ -25,13 +25,12 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<DateProvider>(context);
+    Provider.of<DateProvider>(context);
     final todayButtonPressedHandler = _createTodayButtonPressedHandler();
     _initIsSelected();
     return Padding(
       padding: const EdgeInsets.all(AppSizes.spacingL),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CalendarButton(
             padding: navigateButtonPadding,
@@ -49,14 +48,12 @@ class _CalendarNavigationBarState extends State<CalendarNavigationBar> {
           const SizedBox(width: AppSizes.spacingL),
           CalendarButton(
             child: const Text('today'),
+            background: AppColors.green,
             onPressed: todayButtonPressedHandler,
           ),
           Expanded(
             child: Text(
-              TableHelper.instance.getNavigationTitle(
-                context,
-                provider.selectedDate,
-              ),
+              TableHelper.instance.getNavigationTitle(context),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headline5,
             ),

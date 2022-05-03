@@ -30,14 +30,12 @@ class TableHelper {
       ? DateTime.daysPerWeek
       : Constants.groupCount;
 
-  String getNavigationTitle(
-    BuildContext context,
-    DateTime date,
-  ) {
+  String getNavigationTitle(BuildContext context) {
+    final provider = Provider.of<DateProvider>(context, listen: false);
     final dateFormat = CalendarUtil.isWeekCalendar(context)
         ? DateFormat.yMMMM()
         : DateFormat.yMMMMd();
-    return dateFormat.format(date);
+    return dateFormat.format(provider.selectedDate);
   }
 
   UniqueKey getTableKey(CalendarType type) =>

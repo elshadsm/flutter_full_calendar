@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/date_provider.dart';
-import '../../models/calendar_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
 import 'table_helper.dart';
@@ -85,12 +84,10 @@ class _CalendarTableState extends State<CalendarTable> {
     final renderObject = _firstCellKey.currentContext?.findRenderObject();
     final renderBox = renderObject as RenderBox;
     setState(
-      () => {
-        _graphics = TableHelper.instance.createGraphics(
-          context,
-          renderBox.size.width,
-        )
-      },
+      () => _graphics = TableHelper.instance.createGraphics(
+        context,
+        renderBox.size.width,
+      ),
     );
   }
 }

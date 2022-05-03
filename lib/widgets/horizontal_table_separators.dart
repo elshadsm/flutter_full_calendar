@@ -36,13 +36,11 @@ class HorizontalTableSeparators extends StatelessWidget {
     );
   }
 
-  Map<int, TableColumnWidth> _createTableColumnWidths() {
-    final Map<int, TableColumnWidth> map = {};
-    for (int i = 0; i < cellCount; i++) {
-      map[i] = const FlexColumnWidth();
-    }
-    return map;
-  }
+  Map<int, TableColumnWidth> _createTableColumnWidths() =>
+      Map<int, TableColumnWidth>.fromIterable(
+        Iterable<int>.generate(cellCount),
+        value: (_) => const FlexColumnWidth(),
+      );
 
   TableRow _createTableRow() => TableRow(
         children: List<SizedBox>.generate(

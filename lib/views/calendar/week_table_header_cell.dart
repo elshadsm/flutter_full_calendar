@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_full_calendar/util/date_util.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
@@ -8,6 +7,7 @@ import '../../providers/date_provider.dart';
 import '../../models/calendar_type.dart';
 import '../../resources/colors.dart';
 import '../../resources/sizes.dart';
+import '../../util/date_util.dart';
 
 class WeekTableHeaderCell extends StatelessWidget {
   final DateTime weekDayDate;

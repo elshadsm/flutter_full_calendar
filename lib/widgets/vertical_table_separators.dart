@@ -37,7 +37,7 @@ class VerticalTableSeparators extends StatelessWidget {
 
   List<TableRow> _createTableRows() => List<TableRow>.generate(
         cellCount,
-        (i) => TableRow(
+        (_) => TableRow(
           children: [
             SizedBox(
               width: cellWidth,

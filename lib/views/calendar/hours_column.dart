@@ -40,7 +40,6 @@ class HoursColumn extends StatelessWidget {
           width: AppSizes.hourCellWidth,
           height: AppSizes.tableCellHeight,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Text(

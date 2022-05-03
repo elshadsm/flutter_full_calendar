@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../resources/colors.dart';
+import '../../resources/colors.dart';
 import '../resources/sizes.dart';
 
 class CalendarButton extends StatelessWidget {
   final EdgeInsets? padding;
   final BorderRadiusGeometry borderRadius;
-  final bool selected;
   final Widget? child;
+  final Color? background;
   final VoidCallback? onPressed;
 
   const CalendarButton({
@@ -19,8 +19,8 @@ class CalendarButton extends StatelessWidget {
     this.borderRadius = const BorderRadius.all(
       Radius.circular(AppSizes.spacingS),
     ),
-    this.selected = false,
     this.child,
+    this.background = AppColors.blue,
     this.onPressed,
   }) : super(key: key);
 
@@ -31,7 +31,7 @@ class CalendarButton extends StatelessWidget {
         elevation: 0,
         minimumSize: Size.zero,
         padding: padding,
-        primary: selected ? AppColors.darkBlue : AppColors.blue,
+        primary: background,
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
